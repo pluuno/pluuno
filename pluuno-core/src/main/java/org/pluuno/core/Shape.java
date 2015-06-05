@@ -44,15 +44,7 @@ public class Shape {
 		}
 	}
 	
-	private static final Shape[] VALUES = new Shape[] {
-		S.getUp(), S.getRight(), S.getDown(), S.getLeft(),
-		Z.getUp(), Z.getRight(), Z.getDown(), Z.getLeft(),
-		J.getUp(), J.getRight(), J.getDown(), J.getLeft(),
-		L.getUp(), L.getRight(), L.getDown(), L.getLeft(),
-		T.getUp(), T.getRight(), T.getDown(), T.getLeft(),
-		I.getUp(), I.getRight(), I.getDown(), I.getLeft(),
-		O.getUp(), O.getRight(), O.getDown(), O.getLeft(),
-	};
+	static final Shape[] VALUES = new Shape[28];
 	
 	private ShapeType type;
 	private Orientation orientation;
@@ -88,5 +80,29 @@ public class Shape {
 
 	public short getId() {
 		return id;
+	}
+	
+	@Override
+	public String toString() {
+		if(id < VALUES.length)
+			return String.format("%s_%s", type, orientation);
+		return String.format("<Shape %s %s>", type, orientation);
+	}
+	
+	public String toMaskString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("\u2554\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2557\n");
+		for(int i = 0; i < 64; i++) {
+			if((i % 8) == 0)
+				sb.append('\u2551');
+			if((mask & (1L << i)) != 0)
+				sb.append("[]");
+			else
+				sb.append("  ");
+			if(((i + 1) % 8) == 0)
+				sb.append("\u2551\n");
+		}
+		sb.append("\u255a\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u255d\n");
+		return sb.toString();
 	}
 }

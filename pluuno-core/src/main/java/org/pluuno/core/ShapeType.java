@@ -64,12 +64,20 @@ public class ShapeType {
 	}
 	
 	private static final ShapeType[] VALUES = new ShapeType[] {S, Z, J, L, T, I, O};
+	static {
+		for(int i = 0; i < 7; i++) {
+			Shape.VALUES[4*i + 0] = VALUES[i].getUp();
+			Shape.VALUES[4*i + 1] = VALUES[i].getRight();
+			Shape.VALUES[4*i + 2] = VALUES[i].getDown();
+			Shape.VALUES[4*i + 3] = VALUES[i].getLeft();
+		}
+	}
 	
-	private static long rotate8x8Left(long mask) {
+	private static long rotate8x8Right(long mask) {
 		long rotated = 0;
 		for(int i = 0; i < 8; i++) {
 			long slice = (mask & (0xFFL << (i * 8))) >>> (i * 8);
-			rotated |= inflate(slice) >>> i;
+			rotated |= inflate(slice) << (7 - i);
 		}
 		return rotated;
 	}
@@ -79,6 +87,7 @@ public class ShapeType {
 		long m = 1;
 		for(int i = 0; i < 8; i++) {
 			inflated |= (l & m) << (i * 7);
+			m = m << 1;
 		}
 		return inflated;
 	}
@@ -86,7 +95,10 @@ public class ShapeType {
 	private static long join(long[] m) {
 		long mask = 0;
 		for(int i = 0; i < m.length; i++) {
-			mask |= 0xFF & (m[i] << (i * 8));
+			long b = 0xFFL & m[i];
+			b = Long.reverse(b);
+			b = b >>> 56;
+			mask |= b << (i * 8);
 		}
 		return mask;
 	}
@@ -107,12 +119,12 @@ public class ShapeType {
 		this.id = (short) id;
 		this.dim = dim;
 		up = new Shape(this, Orientation.UP, mask);
-		mask = rotate8x8Left(mask) >>> (8 - dim);
-		left = new Shape(this, Orientation.LEFT, mask);
-		mask = rotate8x8Left(mask) >>> (8 - dim);
-		down = new Shape(this, Orientation.DOWN, mask);
-		mask = rotate8x8Left(mask) >>> (8 - dim);
+		mask = rotate8x8Right(mask) >>> (8 - dim);
 		right = new Shape(this, Orientation.RIGHT, mask);
+		mask = rotate8x8Right(mask) >>> (8 - dim);
+		down = new Shape(this, Orientation.DOWN, mask);
+		mask = rotate8x8Right(mask) >>> (8 - dim);
+		left = new Shape(this, Orientation.LEFT, mask);
 	}
 	
 	public short getId() {
@@ -134,4 +146,11 @@ public class ShapeType {
 		return left;
 	}
 	
+	@Override
+	public String toString() {
+		if(id < VALUES.length) {
+			return Character.toString("SZJLTIO".charAt(id));
+		}
+		return String.format("<ShapeType: %d>", id);
+	}
 }
