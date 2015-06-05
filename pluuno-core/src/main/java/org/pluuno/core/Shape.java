@@ -1,13 +1,5 @@
 package org.pluuno.core;
 
-import static org.pluuno.core.ShapeType.I;
-import static org.pluuno.core.ShapeType.J;
-import static org.pluuno.core.ShapeType.L;
-import static org.pluuno.core.ShapeType.O;
-import static org.pluuno.core.ShapeType.S;
-import static org.pluuno.core.ShapeType.T;
-import static org.pluuno.core.ShapeType.Z;
-
 import java.util.Objects;
 
 import com.esotericsoftware.kryo.Kryo;
