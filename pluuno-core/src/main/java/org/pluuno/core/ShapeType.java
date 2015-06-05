@@ -36,6 +36,10 @@ public class ShapeType {
 			0b11,
 			0b11);
 	
+	public static ShapeType of(short id) {
+		return VALUES[id];
+	}
+	
 	public static class ShapeTypeSerializer extends Serializer<ShapeType> {
 
 		@Override
@@ -87,7 +91,7 @@ public class ShapeType {
 		return mask;
 	}
 	
-	private int id;
+	private short id;
 	private int dim;
 	
 	private Shape up;
@@ -100,7 +104,7 @@ public class ShapeType {
 	}
 	
 	public ShapeType(int id, int dim, long mask) {
-		this.id = id;
+		this.id = (short) id;
 		this.dim = dim;
 		up = new Shape(this, Orientation.UP, mask);
 		mask = rotate8x8Left(mask) >>> (8 - dim);
@@ -111,7 +115,7 @@ public class ShapeType {
 		right = new Shape(this, Orientation.RIGHT, mask);
 	}
 	
-	public int getId() {
+	public short getId() {
 		return id;
 	}
 	private int getDim() {

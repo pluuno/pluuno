@@ -17,10 +17,14 @@ import com.esotericsoftware.kryo.io.Output;
 
 public class Shape {
 	
+	public static Shape of(short id) {
+		return VALUES[id];
+	}
+	
 	public static class ShapeSerializer extends Serializer<Shape> {
 		@Override
 		public void write(Kryo kryo, Output output, Shape object) {
-			output.writeInt(object.getId(), true);
+			output.writeShort(object.getId());
 			if(object.getId() >= VALUES.length) {
 				kryo.writeObject(output, object.getType());
 				output.writeInt(object.getOrientation().toInt(), true);
@@ -30,7 +34,7 @@ public class Shape {
 
 		@Override
 		public Shape read(Kryo kryo, Input input, Class<Shape> t) {
-			int id = input.readInt(true);
+			short id = input.readShort();
 			if(id < VALUES.length)
 				return VALUES[id];
 			ShapeType type = kryo.readObject(input, ShapeType.class);
@@ -52,7 +56,7 @@ public class Shape {
 	
 	private ShapeType type;
 	private Orientation orientation;
-	private int id;
+	private short id;
 	private long mask;
 	
 	public Shape(ShapeType type, Orientation orientation, long mask) {
@@ -60,10 +64,10 @@ public class Shape {
 		this.orientation = Objects.requireNonNull(orientation);
 		this.mask = mask;
 		
-		id = (type.getId() << 2) | orientation.toInt();
+		id = (short)((type.getId() << 2) | orientation.toInt());
 	}
 
-	public Shape(ShapeType type, Orientation orientation, int id, long mask) {
+	public Shape(ShapeType type, Orientation orientation, short id, long mask) {
 		this.type = type;
 		this.orientation = orientation;
 		this.id = id;
@@ -82,7 +86,7 @@ public class Shape {
 		return mask;
 	}
 
-	public int getId() {
+	public short getId() {
 		return id;
 	}
 }
