@@ -44,16 +44,12 @@ public class Shape {
 	private long mask;
 	
 	public Shape(ShapeType type, Orientation orientation, long mask) {
-		this.type = Objects.requireNonNull(type);
-		this.orientation = Objects.requireNonNull(orientation);
-		this.mask = mask;
-		
-		id = (short)((type.getId() << 2) | orientation.toInt());
+		this(type, orientation, (short)((type.getId() << 2) | orientation.toInt()), mask);
 	}
 
 	public Shape(ShapeType type, Orientation orientation, short id, long mask) {
-		this.type = type;
-		this.orientation = orientation;
+		this.type = Objects.requireNonNull(type);
+		this.orientation = Objects.requireNonNull(orientation);
 		this.id = id;
 		this.mask = mask;
 	}
