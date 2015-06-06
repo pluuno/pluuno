@@ -40,6 +40,17 @@ public class ShapeType {
 		return TYPE_VALUES[id];
 	}
 	
+	public static final ShapeType[] TYPE_VALUES = new ShapeType[] {S, Z, J, L, T, I, O};
+	public static final Shape[] SHAPE_VALUES = new Shape[TYPE_VALUES.length * 4];
+	static {
+		for(int i = 0; i < TYPE_VALUES.length; i++) {
+			SHAPE_VALUES[4*i + 0] = TYPE_VALUES[i].getUp();
+			SHAPE_VALUES[4*i + 1] = TYPE_VALUES[i].getRight();
+			SHAPE_VALUES[4*i + 2] = TYPE_VALUES[i].getDown();
+			SHAPE_VALUES[4*i + 3] = TYPE_VALUES[i].getLeft();
+		}
+	}
+
 	public static class ShapeTypeSerializer extends Serializer<ShapeType> {
 
 		@Override
@@ -61,17 +72,6 @@ public class ShapeType {
 			return new ShapeType(id, dim, mask);
 		}
 		
-	}
-	
-	public static final ShapeType[] TYPE_VALUES = new ShapeType[] {S, Z, J, L, T, I, O};
-	public static final Shape[] SHAPE_VALUES = new Shape[TYPE_VALUES.length * 4];
-	static {
-		for(int i = 0; i < TYPE_VALUES.length; i++) {
-			SHAPE_VALUES[4*i + 0] = TYPE_VALUES[i].getUp();
-			SHAPE_VALUES[4*i + 1] = TYPE_VALUES[i].getRight();
-			SHAPE_VALUES[4*i + 2] = TYPE_VALUES[i].getDown();
-			SHAPE_VALUES[4*i + 3] = TYPE_VALUES[i].getLeft();
-		}
 	}
 	
 	private static long rotate8x8Right(long mask) {
