@@ -1,17 +1,10 @@
 package org.pluuno.swing;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import javax.swing.JFrame;
-import javax.swing.Timer;
-
 import org.pluuno.core.Field;
 import org.pluuno.core.ShapeType;
 import org.pluuno.core.play.Engine;
