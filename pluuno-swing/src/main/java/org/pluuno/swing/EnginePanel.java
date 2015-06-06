@@ -12,6 +12,7 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.image.BufferedImage;
 
+import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
@@ -54,12 +55,11 @@ public class EnginePanel extends JPanel implements FieldListener {
 			Color c = engine.getConfig().getShapeColors().getColor(flags, shapeId, engine);
 			g.setColor(c);
 			g.fillRect(0, 0, getWidth(), getHeight());
-			c = new Color(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha() + (255 - c.getAlpha()) / 2);
-			g.setColor(c);
-			g.drawRect(0, 0, getWidth() - 1, getHeight() - 1);
-			g.drawRect(1, 1, getWidth() - 3, getHeight() - 3);
-			g.drawRect(2, 2, getWidth() - 5, getHeight() - 5);
-			g.drawRect(3, 3, getWidth() - 7, getHeight() - 7);
+			if((flags & Blocks.FLAG_SOLID) != 0) {
+				c = new Color(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha() + (255 - c.getAlpha()) / 2);
+				g.setColor(c);
+				g.drawRect(0, 0, getWidth() - 1, getHeight() - 1);
+			}
 			if((flags & Blocks.FLAG_ACTIVE) != 0) {
 				c = engine.getConfig().getShapeColors().getColor(
 						Blocks.FLAG_GHOST,
@@ -108,6 +108,10 @@ public class EnginePanel extends JPanel implements FieldListener {
 		
 		setDoubleBuffered(true);
 		
+		setBorder(BorderFactory.createCompoundBorder(
+				BorderFactory.createLineBorder(Color.BLACK),
+				BorderFactory.createLineBorder(Color.WHITE, 3)));
+		
 		addComponentListener(new ComponentAdapter() {
 			@Override
 			public void componentResized(ComponentEvent e) {
@@ -119,7 +123,7 @@ public class EnginePanel extends JPanel implements FieldListener {
 	}
 
 	public void setPreferredBlockSize(int size) {
-		setPreferredSize(new Dimension(size * engine.getField().getWidth(), size * (bufferHeight + engine.getField().getFieldHeight())));
+		setPreferredSize(new Dimension(8 + size * engine.getField().getWidth(), 8 + size * (bufferHeight + engine.getField().getFieldHeight())));
 	}
 	
 	public Image getBackgroundImage() {

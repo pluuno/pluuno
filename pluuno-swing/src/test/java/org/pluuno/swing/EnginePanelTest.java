@@ -17,44 +17,33 @@ import org.pluuno.core.ShapeType;
 import org.pluuno.core.play.Engine;
 
 public class EnginePanelTest {
-	public static void main(String[] args) {
-		Field field = new Field(10, 10 * 3 / 5);
+	public static void main(String[] args) throws Exception {
+		Field field = new Field(10, 20);
 		final Engine engine = new Engine(field);
 		
 		InputListener input = new InputListener(engine);
 		engine.addEngineListener(input);
 
-		final EnginePanel fp = new EnginePanel(engine, 4);
-		fp.setBackground(Color.BLACK);
-		fp.setFocusable(true);
-		fp.setFocusCycleRoot(true);
-		fp.setFocusTraversalKeysEnabled(false);
-		fp.addKeyListener(input);
-		fp.setPreferredBlockSize(24);
+		final EnginePanel ep = new EnginePanel(engine, 4);
+		ep.setBackground(Color.BLACK);
+		ep.setFocusable(true);
+		ep.setFocusCycleRoot(true);
+		ep.setFocusTraversalKeysEnabled(false);
+		ep.addKeyListener(input);
+		ep.setPreferredBlockSize(16);
 
+		FieldPanel fp = new FieldPanel(ImageIO.read(EnginePanelTest.class.getResource("DSCF0347.JPG")), 640, 480);
+		fp.addEngine(ep, fp.getWidth() / 2 - ep.getPreferredSize().width / 2, fp.getHeight() / 2 - ep.getPreferredSize().height / 2);
+		
 		final JFrame frame = new JFrame();
 		frame.setBackground(Color.BLACK);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.add(fp, BorderLayout.CENTER);
-		frame.addComponentListener(new ComponentAdapter() {
-			private BufferedImage img;
-			{
-				try {
-					img = ImageIO.read(EnginePanelTest.class.getResource("DSCF0347.JPG"));
-				} catch (IOException ex) {
-					throw new RuntimeException(ex);
-				}
-			}
-			@Override
-			public void componentResized(ComponentEvent e) {
-				fp.setBackgroundImage(img.getScaledInstance(fp.getWidth(), fp.getHeight(), 0));
-			}
-		});
 		frame.pack();
 		frame.setVisible(true);
 		
 		
-		fp.requestFocusInWindow();
+		ep.requestFocusInWindow();
 		
 		Runnable tick = new Runnable() {
 			@Override
