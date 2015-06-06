@@ -1,6 +1,7 @@
 package org.pluuno.core.customize;
 
 import org.pluuno.core.play.Randomizer;
+import org.pluuno.core.randomizer.BagRandomizer;
 import org.pluuno.core.randomizer.MemorylessRandomizer;
 
 
@@ -10,7 +11,7 @@ public class DefaultEngineConfiguration implements EngineConfiguration {
 	private RotationSystem rotationSystem;
 	private Ghosting ghosting;
 	private Delays shiftDelays;
-	private Randomizer randomizer = new MemorylessRandomizer();
+	private Randomizer randomizer;
 	
 	public DefaultEngineConfiguration() {
 		PropertiesCustomization pc = new PropertiesCustomization(getClass().getResource("default.properties"));
@@ -19,6 +20,7 @@ public class DefaultEngineConfiguration implements EngineConfiguration {
 		rotationSystem = pc;
 		ghosting = pc;
 		shiftDelays = pc;
+		randomizer = pc;
 	}
 	
 	@Override

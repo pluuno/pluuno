@@ -13,7 +13,6 @@ public class EnginePanelTest {
 	public static void main(String[] args) {
 		Field field = new Field();
 		final Engine engine = new Engine(field);
-		engine.spawn(ShapeType.T);
 		
 		EnginePanel fp = new EnginePanel(engine, 4);
 		InputListener input = new InputListener(engine);

@@ -3,6 +3,7 @@ package org.pluuno.core.customize;
 import java.awt.Color;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Constructor;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
@@ -15,6 +16,7 @@ import org.pluuno.core.Shape;
 import org.pluuno.core.ShapeType;
 import org.pluuno.core.XYShapes;
 import org.pluuno.core.play.Engine;
+import org.pluuno.core.play.Randomizer;
 
 public class PropertiesCustomization 
 implements 
@@ -22,7 +24,8 @@ ShapeColors,
 StartingPositions,
 RotationSystem,
 Ghosting,
-Delays
+Delays,
+Randomizer
 {
 	public static final String STARTING_X_OFFSET = ".starting.x-offset";
 	public static final String STARTING_Y_OFFSET = ".starting.y-offset";
@@ -44,6 +47,8 @@ Delays
 	public static final String DELAY_DAS_DOWN = "delay.das.down";
 	public static final String DELAY_DAS_LEFT = "delay.das.left";
 	public static final String DELAY_ARE = "delay.are";
+	public static final String RANDOMIZER_CLASS = "randomizer.class";
+	public static final String RANDOMIZER_SEED = "randomizer.seed";
 	
 	private static final Properties load(URL url) {
 		try {
@@ -320,5 +325,21 @@ Delays
 		if(are != null)
 			return are;
 		return setCache(DELAY_ARE, Long.parseLong(props.getProperty(DELAY_ARE)));
+	}
+
+	@Override
+	public ShapeType next(int nextShapeID) {
+		Randomizer r = getCache(RANDOMIZER_CLASS);
+		if(r == null) {
+			try {
+				Class<? extends Randomizer> type = Class.forName(props.getProperty(RANDOMIZER_CLASS)).asSubclass(Randomizer.class);
+				Constructor<? extends Randomizer> ctor = type.getConstructor(long.class);
+				r = ctor.newInstance(Long.parseLong(props.getProperty(RANDOMIZER_SEED)));
+				setCache(RANDOMIZER_CLASS, r);
+			} catch(Exception e) {
+				throw new RuntimeException(e);
+			}
+		}
+		return r.next(nextShapeID);
 	}
 }

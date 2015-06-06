@@ -6,7 +6,11 @@ import org.pluuno.core.ShapeType;
 import org.pluuno.core.play.Randomizer;
 
 public class MemorylessRandomizer implements Randomizer {
-	private Random rnd = new Random(); 
+	private Random rnd;
+	
+	public MemorylessRandomizer(long seed) {
+		rnd = new Random(seed);
+	}
 	
 	@Override
 	public ShapeType next(int nextShapeID) {
