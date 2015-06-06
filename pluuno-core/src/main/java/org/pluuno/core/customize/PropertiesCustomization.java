@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Objects;
 import java.util.Properties;
 
 import org.pluuno.core.Orientation;
@@ -47,11 +48,11 @@ RotationSystem
 	private Properties props;
 	
 	public PropertiesCustomization(URL url) {
-		this(load(url));
+		this(load(Objects.requireNonNull(url)));
 	}
 	
 	public PropertiesCustomization(Properties props) {
-		this.props = props;
+		this.props = Objects.requireNonNull(props);
 	}
 
 	private String pv(ShapeType type, String suffix) {
