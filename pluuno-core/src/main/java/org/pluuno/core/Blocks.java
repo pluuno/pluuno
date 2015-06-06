@@ -9,12 +9,13 @@ package org.pluuno.core;
  *
  */
 public class Blocks {
-	public static final int FLAG_SOLID =   0b00000001;
-	public static final int FLAG_GARBAGE = 0b00000010;
-	public static final int FLAG_ACTIVE =  0b00000100;
-	public static final int FLAG_GHOST =   0b00001000;
-	public static final int FLAG_WALL =    0b00010000;
-	public static final int FLAG_BUFFER =  0b00100000;
+	public static final int FLAG_SOLID =     0b00000001;
+	public static final int FLAG_GARBAGE =   0b00000010;
+	public static final int FLAG_ACTIVE =    0b00000100;
+	public static final int FLAG_GHOST =     0b00001000;
+	public static final int FLAG_WALL =      0b00010000;
+	public static final int FLAG_BUFFER =    0b00100000;
+	public static final int FLAG_COLLISION = 0b01000000;
 	
 	public static long of(int flags, int xyshapeId, short shapeId) {
 		long b = 0;

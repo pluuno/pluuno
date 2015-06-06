@@ -12,8 +12,9 @@ public class Field {
 	public static final long PAD_MASK = (1L << PAD) - 1;
 	
 	public static final int DEFAULT_WIDTH = 10;
-	public static final int DEFAULT_FIELD_HEIGHT = 20;
-	public static final int DEFAULT_BUFFER_HEIGHT = 20;
+	public static final int DEFAULT_HEIGHT = 20;
+	
+	public static final int MAX_WIDTH = 64 - 2 * PAD;
 	
 	public static class FieldSerializer extends Serializer<Field> {
 
@@ -54,7 +55,11 @@ public class Field {
 	private long cleared;
 	
 	public Field() {
-		this(DEFAULT_WIDTH, DEFAULT_FIELD_HEIGHT, DEFAULT_BUFFER_HEIGHT);
+		this(DEFAULT_WIDTH, DEFAULT_HEIGHT);
+	}
+	
+	public Field(int width, int height) {
+		this(width, height, height);
 	}
 	
 	public Field(int width, int fieldHeight, int bufferHeight) {
@@ -71,7 +76,7 @@ public class Field {
 		long wallBlock = Blocks.of(Blocks.FLAG_SOLID | Blocks.FLAG_WALL, 0, (short) 0);
 		for(int i = 0; i < PAD; i++) {
 			wallBlocks[i] = wallBlock;
-			wallBlocks[width + 2 * PAD - i] = wallBlock;
+			wallBlocks[width + 2 * PAD - i - 1] = wallBlock;
 		}
 		cleared = -1L >>> (64 - 2 * PAD - width);
 		

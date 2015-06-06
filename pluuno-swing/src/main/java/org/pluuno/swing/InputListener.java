@@ -36,7 +36,7 @@ public class InputListener implements KeyListener, EngineListener {
 
 	@Override
 	public void shapeSpawned(EngineEvent e) {
-		perform();
+		perform(true);
 	}
 
 	@Override
@@ -47,11 +47,20 @@ public class InputListener implements KeyListener, EngineListener {
 	public void gameReset(EngineEvent e) {
 	}
 	
-	public void perform() {
+	public void perform(boolean spawn) {
 		for(Command c : nonlateral) {
-			if(das[c.ordinal()] == 0)
+			switch(c) {
+			case HOLD:
+				if(!spawn)
+					engine.perform(c);
+				break;
+			case ROTATE_CLOCKWISE:
+			case ROTATE_COUNTERCLOCKWISE:
 				engine.perform(c);
+				break;
+			}
 		}
+		nonlateral.clear();
 		if(lateral.size() == 1) {
 			Command c = lateral.get(0);
 			switch(c) {
@@ -60,33 +69,33 @@ public class InputListener implements KeyListener, EngineListener {
 			case SHIFT_UP:
 				if(das[c.ordinal()] >= engine.getConfig().getDelays().getDASUp())
 					engine.perform(Command.SOFT_SHIFT_UP);
-				else if(das[c.ordinal()] == 0)
+				else if(das[c.ordinal()] == 0 && !spawn)
 					engine.perform(c);
 				break;
 			case SHIFT_RIGHT:
 				if(das[c.ordinal()] >= engine.getConfig().getDelays().getDASRight())
 					engine.perform(Command.SOFT_SHIFT_RIGHT);
-				else if(das[c.ordinal()] == 0)
+				else if(das[c.ordinal()] == 0 && !spawn)
 					engine.perform(c);
 				break;
 			case SHIFT_DOWN:
 				if(das[c.ordinal()] >= engine.getConfig().getDelays().getDASDown())
 					engine.perform(Command.SOFT_SHIFT_DOWN);
-				else if(das[c.ordinal()] == 0)
+				else if(das[c.ordinal()] == 0 && !spawn)
 					engine.perform(c);
 				break;
 			case SHIFT_LEFT:
 				if(das[c.ordinal()] >= engine.getConfig().getDelays().getDASLeft())
 					engine.perform(Command.SOFT_SHIFT_LEFT);
-				else if(das[c.ordinal()] == 0)
+				else if(das[c.ordinal()] == 0 && !spawn)
 					engine.perform(c);
 				break;
 			case HARD_SHIFT_UP:
 			case HARD_SHIFT_RIGHT:
 			case HARD_SHIFT_DOWN:
 			case HARD_SHIFT_LEFT:
-				if(das[c.ordinal()] == 0)
-					engine.perform(c);
+				lateral.remove(c);
+				engine.perform(c);
 				break;
 			}
 		}
@@ -94,7 +103,7 @@ public class InputListener implements KeyListener, EngineListener {
 
 	@Override
 	public void clockTicked(EngineEvent e) {
-		perform();
+		perform(false);
 		for(Command c : lateral)
 			das[c.ordinal()]++;
 		for(Command c : nonlateral)
@@ -108,7 +117,7 @@ public class InputListener implements KeyListener, EngineListener {
 	public Command commandOf(KeyEvent e) {
 		switch(e.getKeyCode()) {
 		case KeyEvent.VK_UP:
-			return Command.SHIFT_UP;
+			return Command.HARD_SHIFT_DOWN;
 		case KeyEvent.VK_RIGHT:
 			return Command.SHIFT_RIGHT;
 		case KeyEvent.VK_DOWN:

@@ -1,5 +1,6 @@
 package org.pluuno.swing;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -53,6 +54,12 @@ public class EnginePanel extends JPanel implements FieldListener {
 			Color c = engine.getConfig().getShapeColors().getColor(flags, shapeId, engine);
 			g.setColor(c);
 			g.fillRect(0, 0, getWidth(), getHeight());
+			c = new Color(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha() + (255 - c.getAlpha()) / 2);
+			g.setColor(c);
+			g.drawRect(0, 0, getWidth() - 1, getHeight() - 1);
+			g.drawRect(1, 1, getWidth() - 3, getHeight() - 3);
+			g.drawRect(2, 2, getWidth() - 5, getHeight() - 5);
+			g.drawRect(3, 3, getWidth() - 7, getHeight() - 7);
 			if((flags & Blocks.FLAG_ACTIVE) != 0) {
 				c = engine.getConfig().getShapeColors().getColor(
 						Blocks.FLAG_GHOST,
@@ -68,6 +75,18 @@ public class EnginePanel extends JPanel implements FieldListener {
 						engine);
 				g.setColor(c);
 				g.drawRect(0, 0, getWidth() - 1, getHeight() - 1);
+			}
+			if((flags & Blocks.FLAG_COLLISION) != 0) {
+				g.clipRect(1, 1, getWidth() - 2, getHeight() - 2);
+				g.translate(-1, -1);
+				((Graphics2D) g).scale(8, 8);
+				int s = getWidth() + getHeight();
+				for(int i = 0; i < 2 * s; i += 3) {
+					g.setColor(new Color(0, 0, 0, 255));
+					g.drawLine(i, 0, 0, i);
+					g.setColor(new Color(255, 255, 255, 128));
+					g.drawLine(i - getWidth(), 0, i - getWidth() + s, s);
+				}
 			}
 		}
 	}
@@ -86,6 +105,8 @@ public class EnginePanel extends JPanel implements FieldListener {
 				add(new BlockPanel(x, y));
 			}
 		}
+		
+		setDoubleBuffered(true);
 		
 		addComponentListener(new ComponentAdapter() {
 			@Override

@@ -18,7 +18,7 @@ import org.pluuno.core.play.Engine;
 
 public class EnginePanelTest {
 	public static void main(String[] args) {
-		Field field = new Field(30, 20, 20);
+		Field field = new Field(10, 10 * 3 / 5);
 		final Engine engine = new Engine(field);
 		
 		InputListener input = new InputListener(engine);

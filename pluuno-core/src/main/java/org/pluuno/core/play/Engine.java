@@ -294,6 +294,7 @@ public class Engine {
 		events.fireShapeSpawned(xyshape);
 		if(field.intersects(xyshape)) {
 			over = true;
+			ghost = null;
 			events.fireGameOver();
 			return;
 		}
@@ -352,6 +353,8 @@ public class Engine {
 				if((m & (1L << (x - sx))) != 0)
 					b = block;
 			}
+			if(b != null && over)
+				b |= Blocks.FLAG_COLLISION;
 		}
 		if(b == null && ghost != null) {
 			int sx = XYShapes.x(ghost);
