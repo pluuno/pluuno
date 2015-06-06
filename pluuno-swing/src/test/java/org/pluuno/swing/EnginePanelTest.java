@@ -21,7 +21,7 @@ public class EnginePanelTest {
 		fp.setFocusCycleRoot(true);
 		fp.setFocusTraversalKeysEnabled(false);
 		fp.addKeyListener(input);
-		fp.setPreferredBlockSize(16);
+		fp.setPreferredBlockSize(32);
 
 		final JFrame frame = new JFrame();
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

@@ -14,7 +14,8 @@ public class InputListener implements KeyListener, EngineListener {
 	private static final Command[] COMMANDS = Command.values();
 
 	private Engine engine;
-	private List<Command> held = new ArrayList<>();
+	private List<Command> lateral = new ArrayList<>();
+	private List<Command> nonlateral = new ArrayList<>();
 	private long[] das = new long[COMMANDS.length];
 
 	public InputListener(Engine engine) {
@@ -33,62 +34,9 @@ public class InputListener implements KeyListener, EngineListener {
 	public void shapeLocked(EngineEvent e) {
 	}
 
-	public synchronized void perform(boolean tick, boolean dasOnly) {
-		if(tick) {
-			for(Command c : held)
-				das[c.ordinal()]++;
-		}
-		if(held.size() == 1) {
-			Command c = held.get(0);
-			switch(c) {
-			case NO_ACTION:
-				break;
-			case SHIFT_UP:
-				if(das[c.ordinal()] >= engine.getConfig().getDelays().getDASUp())
-					engine.perform(Command.SOFT_SHIFT_UP);
-				else if(das[c.ordinal()] == 0 && !dasOnly)
-					engine.perform(c);
-				break;
-			case SHIFT_RIGHT:
-				if(das[c.ordinal()] >= engine.getConfig().getDelays().getDASRight())
-					engine.perform(Command.SOFT_SHIFT_RIGHT);
-				else if(das[c.ordinal()] == 0 && !dasOnly)
-					engine.perform(c);
-				break;
-			case SHIFT_DOWN:
-				if(das[c.ordinal()] >= engine.getConfig().getDelays().getDASDown())
-					engine.perform(Command.SOFT_SHIFT_DOWN);
-				else if(das[c.ordinal()] == 0 && !dasOnly)
-					engine.perform(c);
-				break;
-			case SHIFT_LEFT:
-				if(das[c.ordinal()] >= engine.getConfig().getDelays().getDASLeft())
-					engine.perform(Command.SOFT_SHIFT_LEFT);
-				else if(das[c.ordinal()] == 0 && !dasOnly)
-					engine.perform(c);
-				break;
-			case HARD_SHIFT_UP:
-			case HARD_SHIFT_RIGHT:
-			case HARD_SHIFT_DOWN:
-			case HARD_SHIFT_LEFT:
-			case HOLD:
-				if(dasOnly)
-					return;
-				engine.perform(c);
-				c = Command.NO_ACTION;
-				break;
-			case ROTATE_CLOCKWISE:
-			case ROTATE_COUNTERCLOCKWISE:
-				engine.perform(c);
-				c = Command.NO_ACTION;
-				break;
-			}
-		}
-	}
-
 	@Override
 	public void shapeSpawned(EngineEvent e) {
-		perform(false, true);
+		perform();
 	}
 
 	@Override
@@ -98,10 +46,59 @@ public class InputListener implements KeyListener, EngineListener {
 	@Override
 	public void gameReset(EngineEvent e) {
 	}
+	
+	public void perform() {
+		for(Command c : nonlateral) {
+			if(das[c.ordinal()] == 0)
+				engine.perform(c);
+		}
+		if(lateral.size() == 1) {
+			Command c = lateral.get(0);
+			switch(c) {
+			case NO_ACTION:
+				break;
+			case SHIFT_UP:
+				if(das[c.ordinal()] >= engine.getConfig().getDelays().getDASUp())
+					engine.perform(Command.SOFT_SHIFT_UP);
+				else if(das[c.ordinal()] == 0)
+					engine.perform(c);
+				break;
+			case SHIFT_RIGHT:
+				if(das[c.ordinal()] >= engine.getConfig().getDelays().getDASRight())
+					engine.perform(Command.SOFT_SHIFT_RIGHT);
+				else if(das[c.ordinal()] == 0)
+					engine.perform(c);
+				break;
+			case SHIFT_DOWN:
+				if(das[c.ordinal()] >= engine.getConfig().getDelays().getDASDown())
+					engine.perform(Command.SOFT_SHIFT_DOWN);
+				else if(das[c.ordinal()] == 0)
+					engine.perform(c);
+				break;
+			case SHIFT_LEFT:
+				if(das[c.ordinal()] >= engine.getConfig().getDelays().getDASLeft())
+					engine.perform(Command.SOFT_SHIFT_LEFT);
+				else if(das[c.ordinal()] == 0)
+					engine.perform(c);
+				break;
+			case HARD_SHIFT_UP:
+			case HARD_SHIFT_RIGHT:
+			case HARD_SHIFT_DOWN:
+			case HARD_SHIFT_LEFT:
+				if(das[c.ordinal()] == 0)
+					engine.perform(c);
+				break;
+			}
+		}
+	}
 
 	@Override
 	public void clockTicked(EngineEvent e) {
-		perform(true, false);
+		perform();
+		for(Command c : lateral)
+			das[c.ordinal()]++;
+		for(Command c : nonlateral)
+			das[c.ordinal()]++;
 	}
 
 	@Override
@@ -132,10 +129,30 @@ public class InputListener implements KeyListener, EngineListener {
 	public synchronized void keyPressed(KeyEvent e) {
 		Command c = commandOf(e);
 
-		if(c == null || held.contains(c))
+		if(c == null || lateral.contains(c) || nonlateral.contains(c))
 			return;
 
-		held.add(c);
+		switch(c) {
+		case SHIFT_UP:
+		case SHIFT_RIGHT:
+		case SHIFT_DOWN:
+		case SHIFT_LEFT:
+		case SOFT_SHIFT_UP:
+		case SOFT_SHIFT_RIGHT:
+		case SOFT_SHIFT_DOWN:
+		case SOFT_SHIFT_LEFT:
+		case HARD_SHIFT_UP:
+		case HARD_SHIFT_RIGHT:
+		case HARD_SHIFT_DOWN:
+		case HARD_SHIFT_LEFT:
+			lateral.add(c);
+			break;
+		case HOLD:
+		case ROTATE_CLOCKWISE:
+		case ROTATE_COUNTERCLOCKWISE:
+			nonlateral.add(c);
+			break;
+		}
 		das[c.ordinal()] = 0;
 	}
 
@@ -144,8 +161,8 @@ public class InputListener implements KeyListener, EngineListener {
 		Command c = commandOf(e);
 		if(c == null)
 			return;
-		held.remove(c);
-		das[c.ordinal()] = 0;
+		lateral.remove(c);
+		nonlateral.remove(c);
 	}
 
 }
