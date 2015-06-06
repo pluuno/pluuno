@@ -9,32 +9,32 @@ import com.esotericsoftware.kryo.io.Output;
 
 public class ShapeType {
 	
-	public static final ShapeType S = new ShapeType(0, 3, new Color(105, 190, 40),
+	public static final ShapeType S = new ShapeType(0, 3, new Color(105, 190, 40, 255),
 			0b011,
 			0b110,
 			0b000);
-	public static final ShapeType Z = new ShapeType(1, 3, new Color(237, 41, 57),
+	public static final ShapeType Z = new ShapeType(1, 3, new Color(237, 41, 57, 255),
 			0b110,
 			0b011,
 			0b000);
-	public static final ShapeType J = new ShapeType(2, 3, new Color(0, 101, 189),
+	public static final ShapeType J = new ShapeType(2, 3, new Color(0, 101, 189, 255),
 			0b100,
 			0b111,
 			0b000);
-	public static final ShapeType L = new ShapeType(3, 3, new Color(255, 121, 0),
+	public static final ShapeType L = new ShapeType(3, 3, new Color(255, 121, 0, 255),
 			0b001,
 			0b111,
 			0b000);
-	public static final ShapeType T = new ShapeType(4, 3, new Color(149, 45, 152),
+	public static final ShapeType T = new ShapeType(4, 3, new Color(149, 45, 152, 255),
 			0b010,
 			0b111,
 			0b000);
-	public static final ShapeType I = new ShapeType(5, 4, new Color(0, 159, 218),
+	public static final ShapeType I = new ShapeType(5, 4, new Color(0, 159, 218, 255),
 			0b0000,
 			0b1111,
 			0b0000,
 			0b0000);
-	public static final ShapeType O = new ShapeType(6, 2, new Color(254, 203, 0),
+	public static final ShapeType O = new ShapeType(6, 2, new Color(254, 203, 0, 255),
 			0b11,
 			0b11);
 	

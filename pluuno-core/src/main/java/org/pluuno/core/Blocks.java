@@ -16,18 +16,19 @@ public class Blocks {
 	public static int FLAG_ACTIVE =  0b00000100;
 	public static int FLAG_GHOST =   0b00001000;
 	
-	public static long of(int flags, int red, int green, int blue, short shapeId) {
+	public static long of(int flags, int red, int green, int blue, int alpha, short shapeId) {
 		long b = 0;
 		b |= (0xFFL & flags) << 0;
 		b |= (0xFFL & red) << 8;
 		b |= (0xFFL & green) << 16;
 		b |= (0xFFL & blue) << 24;
-		b |= (0xFFFFFFFFL & shapeId) << 32;
+		b |= (0xFFL & alpha) << 32;
+		b |= (0xFFFFL & shapeId) << 40;
 		return b;
 	}
 	
 	public static long of(int flags, Color c, short shapeId) {
-		return of(flags, c.getRed(), c.getGreen(), c.getBlue(), shapeId);
+		return of(flags, c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha(), shapeId);
 	}
 	
 	public static int flags(long block) {
@@ -55,6 +56,6 @@ public class Blocks {
 	}
 	
 	public static short shapeId(long block) {
-		return (short)((0xFFFF0000000000L & block) >>> 32);
+		return (short)((0xFFFF0000000000L & block) >>> 40);
 	}
 }

@@ -33,5 +33,6 @@
 
 	<modules>
 		<module>../pluuno-core</module>
+		<module>../pluuno-swing</module>
 	</modules>
 </project>

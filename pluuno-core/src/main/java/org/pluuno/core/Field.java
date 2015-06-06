@@ -114,13 +114,13 @@ public class Field {
 		for(int by = 0; by < Shape.MAX_DIM; by++) {
 			for(int bx = 0; bx < Shape.MAX_DIM; bx++) {
 				if((shape.getMask() & (1L << (by * Shape.MAX_DIM + bx))) != 0)
-					blocks[width * y + width * by + x + bx] = block;
+					blocks[width * (y + bufferHeight) + width * by + x + bx] = block;
 			}
 		}
 	}
 	
 	public long getBlock(int x, int y) {
-		return blocks[width * y + x];
+		return blocks[width * (y + bufferHeight) + x];
 	}
 	
 	public int getWidth() {
