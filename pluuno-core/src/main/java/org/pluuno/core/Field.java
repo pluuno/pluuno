@@ -49,6 +49,9 @@ public class Field {
 	private long[] blocks;
 	
 	private long wall;
+	private long[] wallBlocks;
+	
+	private long cleared;
 	
 	public Field() {
 		this(DEFAULT_WIDTH, DEFAULT_FIELD_HEIGHT, DEFAULT_BUFFER_HEIGHT);
@@ -64,9 +67,17 @@ public class Field {
 		mask = new long[fieldHeight + bufferHeight + 2 * PAD];
 		blocks = new long[mask.length * 64];
 		wall = PAD_MASK | (PAD_MASK << (PAD + width));
+		wallBlocks = new long[64];
+		long wallBlock = Blocks.of(Blocks.FLAG_SOLID | Blocks.FLAG_WALL, 0, (short) 0);
+		for(int i = 0; i < PAD; i++) {
+			wallBlocks[i] = wallBlock;
+			wallBlocks[width + 2 * PAD - i] = wallBlock;
+		}
+		cleared = -1L >>> (64 - 2 * PAD - width);
+		
 		top = PAD + bufferHeight;
 		
-		clear();
+		reset();
 	}
 
 	private Field(int width, int fieldHeight, int bufferHeight, long[] mask) {
@@ -74,7 +85,7 @@ public class Field {
 		this.mask = mask;
 	}
 	
-	public void clear() {
+	public void reset() {
 		Arrays.fill(mask, wall);
 		for(int i = 0; i < PAD; i++) {
 			mask[i] = -1L;
@@ -109,6 +120,42 @@ public class Field {
 				return true;
 		}
 		return false;
+	}
+	
+	public void shift(int fromY, int toY, int delta, long replaceWith, long[] replaceBlocksWith) {
+		if(toY < fromY)
+			throw new IllegalArgumentException();
+		if(replaceBlocksWith.length != 64)
+			throw new IllegalArgumentException();
+		long[] replace = new long[Math.abs(delta)];
+		Arrays.fill(replace, replaceWith);
+		if(delta > 0) {
+			if(fromY < -bufferHeight || fromY > fieldHeight || toY + delta < -bufferHeight || toY + delta > fieldHeight)
+				throw new IllegalArgumentException();
+			System.arraycopy(mask, top + fromY, mask, top + fromY + delta, toY - fromY);
+			System.arraycopy(blocks, 64 * (top + fromY), blocks, 64 * (top + fromY + delta), 64 * (toY - fromY));
+			System.arraycopy(replace, 0, mask, top + fromY, replace.length);
+			for(int i = 0; i < delta; i++) {
+				System.arraycopy(replaceBlocksWith, 0, blocks, 64 * (top + fromY + i), 64);
+			}
+		} else if(delta < 0) {
+			if(fromY + delta < -bufferHeight || fromY + delta > fieldHeight || toY < -bufferHeight || toY > fieldHeight)
+				throw new IllegalArgumentException();
+			System.arraycopy(mask, top + fromY, mask, top + fromY + delta, toY - fromY);
+			System.arraycopy(blocks, 64 * (top + fromY), blocks, 64 * (top + fromY + delta), 64 * (toY - fromY));
+			System.arraycopy(replace, 0, mask, top + toY + delta, replace.length);
+			for(int i = 0; i < -delta; i++) {
+				System.arraycopy(replaceBlocksWith, 0, blocks, 64 * (top + toY - i), 64);
+			}
+		}
+	}
+	
+	public void removeRow(int y) {
+		shift(-bufferHeight, y, 1, wall, wallBlocks);
+	}
+	
+	public boolean isCleared(int y) {
+		return mask[top + y] == cleared;
 	}
 	
 	public void blit(long xyshape, long block) {

@@ -317,6 +317,17 @@ public class Engine {
 				shape.getId()));
 		setXYShape(null);
 		events.fireShapeLocked(was);
+		
+		int y = field.getFieldHeight() - 1;
+		while(y >= -field.getBufferHeight()) {
+			if(field.isCleared(y))
+				field.removeRow(y);
+			else
+				y--;
+		}
+		
+		repaint();
+		
 		counts.are = 0;
 		if(counts.are >= config.getDelays().getARE()) {
 			spawn(config.getRandomizer().next(counts.currentXYShapeID + 1));
@@ -324,7 +335,7 @@ public class Engine {
 	}
 	
 	public void reset() {
-		field.clear();
+		field.reset();
 		setXYShape(null);
 		counts = new Counts();
 		over = false;
