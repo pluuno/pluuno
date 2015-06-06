@@ -129,7 +129,10 @@ public class Field {
 	}
 	
 	public long getBlock(int x, int y) {
-		return blocks[64 * (top + y) + PAD + x];
+		long b = blocks[64 * (top + y) + PAD + x];
+		if(y < 0)
+			b |= Blocks.FLAG_BUFFER;
+		return b;
 	}
 	
 	public int getWidth() {

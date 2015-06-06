@@ -282,25 +282,30 @@ public class Engine {
 	}
 	
 	public long getBlock(int x, int y) {
+		Long b = null;
 		if(xyshape != null) {
 			int sx = XYShapes.x(xyshape);
 			int sy = XYShapes.y(xyshape);
 			if(x >= sx && x - sx < Shape.MAX_DIM && y >= sy && y - sy < Shape.MAX_DIM) {
 				long m = XYShapes.shape(xyshape).getSplitMask()[y - sy];
 				if((m & (1L << (x - sx))) != 0)
-					return block;
+					b = block;
 			}
 		}
-		if(ghost != null) {
+		if(b == null && ghost != null) {
 			int sx = XYShapes.x(ghost);
 			int sy = XYShapes.y(ghost);
 			if(x >= sx && x - sx < Shape.MAX_DIM && y >= sy && y - sy < Shape.MAX_DIM) {
 				long m = XYShapes.shape(ghost).getSplitMask()[y - sy];
 				if((m & (1L << (x - sx))) != 0)
-					return ghostBlock;
+					b = ghostBlock;
 			}
 		}
-		return field.getBlock(x, y);
+		if(b == null)
+			b = field.getBlock(x, y);
+		if(y < 0)
+			b |= Blocks.FLAG_BUFFER;
+		return b;
 	}
 	
 	public Field getField() {

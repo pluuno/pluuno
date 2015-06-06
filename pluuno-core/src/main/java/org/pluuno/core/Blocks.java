@@ -16,6 +16,7 @@ public class Blocks {
 	public static final int FLAG_ACTIVE =  0b00000100;
 	public static final int FLAG_GHOST =   0b00001000;
 	public static final int FLAG_WALL =    0b00010000;
+	public static final int FLAG_BUFFER =  0b00100000;
 	
 	public static long of(int flags, int red, int green, int blue, int alpha, short shapeId) {
 		long b = 0;

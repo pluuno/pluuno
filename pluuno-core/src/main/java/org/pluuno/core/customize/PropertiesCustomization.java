@@ -35,6 +35,7 @@ Ghosting
 	public static final String BACKGROUND_COLOR = "color.background";
 	public static final String WALL_COLOR = "color.wall";
 	public static final String GARBAGE_COLOR = "color.garbage";
+	public static final String BUFFER_COLOR = "color.buffer";
 	
 	private static final Properties load(URL url) {
 		try {
@@ -87,7 +88,7 @@ Ghosting
 	public int startingX(ShapeType type, Engine engine) {
 		int xoff = Integer.parseInt(pv(type, STARTING_X_OFFSET));
 		Shape shape = type.getShape(startingOrientation(type, engine));
-		return engine.getField().getWidth() / 2 - shape.getWidth() / 2 + xoff;
+		return engine.getField().getWidth() / 2 - (shape.getWidth()+1) / 2 + xoff;
 	}
 
 	@Override
@@ -114,6 +115,8 @@ Ghosting
 			return getWallColor();
 		if((blockFlags & Blocks.FLAG_SOLID) != 0)
 			return getInactiveColor(Shape.of(shapeId), engine);
+		if((blockFlags & Blocks.FLAG_BUFFER) != 0)
+			return getBufferColor();
 		return getBackgroundColor();
 	}
 
@@ -146,6 +149,15 @@ Ghosting
 	
 	public Color getBackgroundColor() {
 		String[] rgba = props.getProperty(BACKGROUND_COLOR).split(",");
+		return new Color(
+				Integer.parseInt(rgba[0].trim()),
+				Integer.parseInt(rgba[1].trim()),
+				Integer.parseInt(rgba[2].trim()),
+				Integer.parseInt(rgba[3].trim()));
+	}
+	
+	public Color getBufferColor() {
+		String[] rgba = props.getProperty(BUFFER_COLOR).split(",");
 		return new Color(
 				Integer.parseInt(rgba[0].trim()),
 				Integer.parseInt(rgba[1].trim()),
