@@ -64,11 +64,13 @@ RotationSystem
 	}
 	
 	private String pv(Shape shape, String suffix) {
-		String v = props.getProperty(shape.getType() + "." + shape.getOrientation().toString().toLowerCase() + "." + suffix);
+		String v = props.getProperty(shape.getType() + "." + shape.getOrientation().toString().toLowerCase() + suffix);
 		if(v == null)
-			v = props.getProperty(shape.getType().getId() + "." + shape.getOrientation().toString().toLowerCase() + "." + suffix);
+			v = props.getProperty(shape.getType().getId() + "." + shape.getOrientation().toString().toLowerCase() + suffix);
 		if(v == null)
 			v = props.getProperty(shape.getType() + ".*" + suffix);
+		if(v == null)
+			v = props.getProperty("*." + shape.getOrientation().toString().toLowerCase() + suffix);
 		if(v == null)
 			v = props.getProperty("*.*" + suffix);
 		return v;
@@ -128,10 +130,6 @@ RotationSystem
 		Shape shape = XYShapes.shape(xyshape);
 		String xks = pv(shape, CLOCKWISE_X_KICKS);
 		String yks = pv(shape, CLOCKWISE_Y_KICKS);
-		if(xks == null)
-			xks = pv(shape.getType(), CLOCKWISE_X_KICKS);
-		if(yks == null)
-			yks = pv(shape.getType(), CLOCKWISE_Y_KICKS);
 		String[] xs = xks.split(",");
 		String[] ys = yks.split(",");
 		
@@ -139,9 +137,9 @@ RotationSystem
 		int[] yo = new int[ys.length];
 		
 		for(int i = 0; i < xs.length; i++)
-			xo[i] = Integer.parseInt(xs[i]);
+			xo[i] = Integer.parseInt(xs[i].trim());
 		for(int i = 0; i < ys.length; i++)
-			yo[i] = Integer.parseInt(ys[i]);
+			yo[i] = Integer.parseInt(ys[i].trim());
 		
 		long rotated = XYShapes.clockwise(xyshape);
 		for(int i = 0; i < xo.length; i++) {
@@ -157,10 +155,6 @@ RotationSystem
 		Shape shape = XYShapes.shape(xyshape);
 		String xks = pv(shape, COUNTERCLOCKWISE_X_KICKS);
 		String yks = pv(shape, COUNTERCLOCKWISE_Y_KICKS);
-		if(xks == null)
-			xks = pv(shape.getType(), COUNTERCLOCKWISE_X_KICKS);
-		if(yks == null)
-			yks = pv(shape.getType(), COUNTERCLOCKWISE_Y_KICKS);
 		String[] xs = xks.split(",");
 		String[] ys = yks.split(",");
 		
@@ -168,9 +162,9 @@ RotationSystem
 		int[] yo = new int[ys.length];
 		
 		for(int i = 0; i < xs.length; i++)
-			xo[i] = Integer.parseInt(xs[i]);
+			xo[i] = Integer.parseInt(xs[i].trim());
 		for(int i = 0; i < ys.length; i++)
-			yo[i] = Integer.parseInt(ys[i]);
+			yo[i] = Integer.parseInt(ys[i].trim());
 		
 		long rotated = XYShapes.counterclockwise(xyshape);
 		for(int i = 0; i < xo.length; i++) {
