@@ -9,6 +9,7 @@ public class EngineEvent extends EventObject {
 	public static final int SHAPE_SPAWNED = 3;
 	public static final int GAME_OVER = 4;
 	public static final int GAME_RESET = 5;
+	public static final int CLOCK_TICKED = 6;
 	
 	private static final long serialVersionUID = 0;
 	

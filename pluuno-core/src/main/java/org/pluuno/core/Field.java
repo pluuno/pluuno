@@ -102,7 +102,7 @@ public class Field {
 		for(int i = 0; i < smask.length; i++) {
 			long fmask;
 			if(y + i < fieldHeight && y + i >= -bufferHeight)
-				fmask = mask[top + y + i] & ~wall;
+				fmask = mask[top + y + i];
 			else
 				fmask = -1L;
 			if((fmask & (smask[i] << (PAD + x))) != 0)
@@ -150,6 +150,10 @@ public class Field {
 
 	public long[] getMask() {
 		return mask;
+	}
+	
+	public long[] getBlocks() {
+		return blocks;
 	}
 	
 	@Override

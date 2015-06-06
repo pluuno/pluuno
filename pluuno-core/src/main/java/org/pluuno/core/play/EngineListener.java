@@ -9,4 +9,5 @@ public interface EngineListener extends EventListener {
 	public void shapeSpawned(EngineEvent e);
 	public void gameOver(EngineEvent e);
 	public void gameReset(EngineEvent e);
+	public void clockTicked(EngineEvent e);
 }

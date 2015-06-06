@@ -21,7 +21,8 @@ implements
 ShapeColors,
 StartingPositions,
 RotationSystem,
-Ghosting
+Ghosting,
+Delays
 {
 	public static final String STARTING_X_OFFSET = ".starting.x-offset";
 	public static final String STARTING_Y_OFFSET = ".starting.y-offset";
@@ -38,6 +39,11 @@ Ghosting
 	public static final String WALL_COLOR = "color.wall";
 	public static final String GARBAGE_COLOR = "color.garbage";
 	public static final String BUFFER_COLOR = "color.buffer";
+	public static final String DELAY_DAS_UP = "delay.das.up";
+	public static final String DELAY_DAS_RIGHT = "delay.das.right";
+	public static final String DELAY_DAS_DOWN = "delay.das.down";
+	public static final String DELAY_DAS_LEFT = "delay.das.left";
+	public static final String DELAY_ARE = "delay.are";
 	
 	private static final Properties load(URL url) {
 		try {
@@ -276,4 +282,43 @@ Ghosting
 		return xyshape;
 	}
 
+	@Override
+	public long getDASUp() {
+		Long das = getCache(DELAY_DAS_UP);
+		if(das != null)
+			return das;
+		return setCache(DELAY_DAS_UP, Long.parseLong(props.getProperty(DELAY_DAS_UP)));
+	}
+
+	@Override
+	public long getDASRight() {
+		Long das = getCache(DELAY_DAS_RIGHT);
+		if(das != null)
+			return das;
+		return setCache(DELAY_DAS_RIGHT, Long.parseLong(props.getProperty(DELAY_DAS_RIGHT)));
+	}
+
+	@Override
+	public long getDASDown() {
+		Long das = getCache(DELAY_DAS_DOWN);
+		if(das != null)
+			return das;
+		return setCache(DELAY_DAS_DOWN, Long.parseLong(props.getProperty(DELAY_DAS_DOWN)));
+	}
+
+	@Override
+	public long getDASLeft() {
+		Long das = getCache(DELAY_DAS_LEFT);
+		if(das != null)
+			return das;
+		return setCache(DELAY_DAS_LEFT, Long.parseLong(props.getProperty(DELAY_DAS_LEFT)));
+	}
+
+	@Override
+	public long getARE() {
+		Long are = getCache(DELAY_ARE);
+		if(are != null)
+			return are;
+		return setCache(DELAY_ARE, Long.parseLong(props.getProperty(DELAY_ARE)));
+	}
 }

@@ -1,11 +1,16 @@
 package org.pluuno.core.customize;
 
+import org.pluuno.core.play.Randomizer;
+import org.pluuno.core.randomizer.MemorylessRandomizer;
+
 
 public class DefaultEngineConfiguration implements EngineConfiguration {
 	private ShapeColors shapeColors;
 	private StartingPositions startingPositions;
 	private RotationSystem rotationSystem;
 	private Ghosting ghosting;
+	private Delays shiftDelays;
+	private Randomizer randomizer = new MemorylessRandomizer();
 	
 	public DefaultEngineConfiguration() {
 		PropertiesCustomization pc = new PropertiesCustomization(getClass().getResource("default.properties"));
@@ -13,6 +18,7 @@ public class DefaultEngineConfiguration implements EngineConfiguration {
 		startingPositions = pc;
 		rotationSystem = pc;
 		ghosting = pc;
+		shiftDelays = pc;
 	}
 	
 	@Override
@@ -35,6 +41,11 @@ public class DefaultEngineConfiguration implements EngineConfiguration {
 		return ghosting;
 	}
 
+	@Override
+	public Delays getDelays() {
+		return shiftDelays;
+	}
+
 	public void setShapeColors(ShapeColors shapeColors) {
 		this.shapeColors = shapeColors;
 	}
@@ -49,5 +60,18 @@ public class DefaultEngineConfiguration implements EngineConfiguration {
 
 	public void setGhosting(Ghosting ghosting) {
 		this.ghosting = ghosting;
+	}
+	
+	public void setShiftDelays(Delays shiftDelays) {
+		this.shiftDelays = shiftDelays;
+	}
+	
+	@Override
+	public Randomizer getRandomizer() {
+		return randomizer;
+	}
+	
+	public void setRandomizer(Randomizer randomizer) {
+		this.randomizer = randomizer;
 	}
 }

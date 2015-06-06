@@ -18,6 +18,7 @@ public class Engine {
 		private long moveCount;
 		private long holdCount;
 		private long gravityFrameOffset;
+		private long are;
 		private int level;
 		
 		private Counts() {}
@@ -58,6 +59,12 @@ public class Engine {
 		public void setLevel(int level) {
 			this.level = level;
 		}
+		public long getAre() {
+			return are;
+		}
+		public void setAre(long are) {
+			this.are = are;
+		}
 	}
 	
 	private Field field;
@@ -69,12 +76,15 @@ public class Engine {
 	
 	private EngineConfiguration config = new DefaultEngineConfiguration();
 	private Counts counts = new Counts();
-	private EngineEventHelper events = new EngineEventHelper();
-	
+	private EngineEventHelper events = new EngineEventHelper(this);
+
 	private boolean over;
+	
+	private long[] lastBlocks;
 	
 	public Engine(Field field) {
 		this.field = Objects.requireNonNull(field);
+		lastBlocks = field.getBlocks().clone();
 	}
 	
 	public void addEngineListener(EngineListener l) {
@@ -83,6 +93,37 @@ public class Engine {
 	
 	public void removeEngineListener(EngineListener l) {
 		events.removeEngineListener(l);
+	}
+	
+	public void addFieldListener(FieldListener l) {
+		events.addFieldListener(l);
+	}
+	
+	public void removeFieldListener(FieldListener l) {
+		events.removeFieldListener(l);
+	}
+	
+	public void tick() {
+		counts.frameCount++;
+		counts.are++;
+		events.fireClockTicked();
+		if(xyshape == null && counts.are >= config.getDelays().getARE()) {
+			spawn(config.getRandomizer().next(counts.currentXYShapeID + 1));
+		}
+		repaint();
+	}
+	
+	public void repaint() {
+		for(int y = -field.getBufferHeight(); y < field.getFieldHeight(); y++) {
+			for(int x = 0; x < field.getWidth(); x++) {
+				int i = 64 * (Field.PAD + field.getBufferHeight() + y) + Field.PAD + x;
+				long nb = getBlock(x, y);
+				if(lastBlocks[i] != nb) {
+					events.fireBlockModified(x, y);
+					lastBlocks[i] = nb;
+				}
+			}
+		}
 	}
 	
 	public void perform(Command command) {
@@ -109,6 +150,9 @@ public class Engine {
 			nxy = XYShapes.shifted(xyshape, 0, 1);
 			if(!field.intersects(nxy)) {
 				xyshape = nxy;
+				counts.moveCount++;
+			} else {
+				lock();
 				counts.moveCount++;
 			}
 			break;
@@ -232,6 +276,7 @@ public class Engine {
 		}
 		else if(command != Command.NO_ACTION)
 			events.fireCommandNotPerformed(command);
+		repaint();
 	}
 	
 	public void spawn(ShapeType type) {
@@ -258,6 +303,7 @@ public class Engine {
 				Blocks.FLAG_ACTIVE | Blocks.FLAG_GHOST, 
 				XYShapes.id(xyshape), 
 				shape.getId());
+		repaint();
 	}
 
 	public void lock() {
@@ -271,6 +317,10 @@ public class Engine {
 				shape.getId()));
 		setXYShape(null);
 		events.fireShapeLocked(was);
+		counts.are = 0;
+		if(counts.are >= config.getDelays().getARE()) {
+			spawn(config.getRandomizer().next(counts.currentXYShapeID + 1));
+		}
 	}
 	
 	public void reset() {

@@ -5,17 +5,24 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
+import java.nio.ByteBuffer;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Random;
 
+import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 
 import org.pluuno.core.Blocks;
 import org.pluuno.core.Field;
 import org.pluuno.core.play.Engine;
+import org.pluuno.core.play.FieldListener;
 
-public class EnginePanel extends JPanel {
+public class EnginePanel extends JPanel implements FieldListener {
 	private static final long serialVersionUID = 0;
 	
 	private Engine engine;
+	private int bufferHeight;
 	
 	private class BlockPanel extends JPanel {
 		private static final long serialVersionUID = 0;
@@ -26,35 +33,26 @@ public class EnginePanel extends JPanel {
 		public BlockPanel(int x, int y) {
 			this.x = x;
 			this.y = y;
+			
 		}
 		
 		@Override
 		protected void paintComponent(Graphics g) {
 			long block = engine.getBlock(x, y);
+			g.setColor(EnginePanel.this.getBackground());
+			g.fillRect(0, 0, getWidth(), getHeight());
 			Color c = engine.getConfig().getShapeColors().getColor(Blocks.flags(block), Blocks.shapeId(block), engine);
 			g.setColor(c);
 			g.fillRect(0, 0, getWidth(), getHeight());
-			long up = engine.getBlock(x, y-1);
-			long right = engine.getBlock(x+1, y);
-			long down = engine.getBlock(x, y+1);
-			long left = engine.getBlock(x-1, y);
-			
-			c = new Color(c.getRGB() & 0xFFFFFF);
-			g.setColor(c.brighter());
-			((Graphics2D) g).setStroke(new BasicStroke(3f));
-			if(Blocks.xyshapeId(block) != Blocks.xyshapeId(up))
-				g.drawLine(0, 0, getWidth()-1, 0);
-			if(Blocks.xyshapeId(block) != Blocks.xyshapeId(right))
-				g.drawLine(getWidth()-1, 0, getWidth()-1, getHeight()-1);
-			if(Blocks.xyshapeId(block) != Blocks.xyshapeId(down))
-				g.drawLine(0, getHeight()-1, getWidth()-1, getHeight()-1);
-			if(Blocks.xyshapeId(block) != Blocks.xyshapeId(left))
-				g.drawLine(0, 0, 0, getHeight()-1);
 		}
 	}
 	
 	public EnginePanel(Engine engine, int bufferHeight) {
 		this.engine = engine;
+		this.bufferHeight = bufferHeight;
+		
+		engine.addFieldListener(this);
+		
 		Field f = engine.getField();
 		setLayout(new GridLayout(f.getFieldHeight() + bufferHeight, f.getWidth()));
 		
@@ -64,7 +62,14 @@ public class EnginePanel extends JPanel {
 			}
 		}
 		
-		setDoubleBuffered(true);
-		setOpaque(false);
+		setBackground(Color.BLACK);
+		setOpaque(true);
+	}
+
+	@Override
+	public void blockModified(int x, int y) {
+		if(y < -bufferHeight)
+			return;
+		getComponent(engine.getField().getWidth() * (y + bufferHeight) + x).repaint();
 	}
 }
