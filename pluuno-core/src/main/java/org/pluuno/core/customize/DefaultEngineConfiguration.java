@@ -1,8 +1,6 @@
 package org.pluuno.core.customize;
 
 import org.pluuno.core.play.Randomizer;
-import org.pluuno.core.randomizer.BagRandomizer;
-import org.pluuno.core.randomizer.MemorylessRandomizer;
 
 
 public class DefaultEngineConfiguration implements EngineConfiguration {

@@ -2,10 +2,6 @@ package org.pluuno.swing;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
@@ -13,7 +9,6 @@ import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 
 import org.pluuno.core.Field;
-import org.pluuno.core.ShapeType;
 import org.pluuno.core.play.Engine;
 
 public class EnginePanelTest {

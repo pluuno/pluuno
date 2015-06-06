@@ -1,6 +1,5 @@
 package org.pluuno.swing;
 
-import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -10,13 +9,8 @@ import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
-import java.awt.image.BufferedImage;
-
 import javax.swing.BorderFactory;
-import javax.swing.JComponent;
 import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
-
 import org.pluuno.core.Blocks;
 import org.pluuno.core.Field;
 import org.pluuno.core.play.Engine;
