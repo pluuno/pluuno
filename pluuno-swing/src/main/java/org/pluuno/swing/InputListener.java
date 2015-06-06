@@ -33,6 +33,8 @@ public class InputListener implements KeyListener, EngineListener {
 
 	private synchronized void perform(boolean tick, boolean dasOnly) {
 		switch(command) {
+		case NO_ACTION:
+			break;
 		case SHIFT_UP:
 			if(dasCount >= engine.getConfig().getDelays().getDASUp())
 				engine.perform(Command.SOFT_SHIFT_UP);
@@ -69,6 +71,7 @@ public class InputListener implements KeyListener, EngineListener {
 		case HARD_SHIFT_RIGHT:
 		case HARD_SHIFT_DOWN:
 		case HARD_SHIFT_LEFT:
+		case HOLD:
 			if(dasOnly)
 				return;
 			engine.perform(command);
@@ -129,6 +132,9 @@ public class InputListener implements KeyListener, EngineListener {
 			break;
 		case KeyEvent.VK_X:
 			command = Command.ROTATE_CLOCKWISE;
+			break;
+		case KeyEvent.VK_SPACE:
+			command = Command.HOLD;
 			break;
 		}
 	}
