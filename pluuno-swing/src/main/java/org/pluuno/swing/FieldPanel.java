@@ -62,7 +62,7 @@ public class FieldPanel extends JPanel {
 		g2.fillRect(0, 0, getWidth(), getHeight());
 
 		g2 = (Graphics2D) g.create();
-		g2.setColor(new Color(127,127,127,127));
+		g2.setColor(getBackground());
 		g2.fillRect(0, 0, getWidth(), getHeight());
 	}
 }

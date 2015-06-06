@@ -16,8 +16,6 @@ public class FieldPanelTest {
 		Field field = new Field();
 		field.blit(XYShapes.of(ShapeType.S.getUp(), 0, 0, 0));
 		
-		System.out.println(field);
-		
 		FieldPanel fp = new FieldPanel(field, 4);
 		JFrame frame = new JFrame(FieldPanelTest.class.getName());
 		frame.setUndecorated(true);
