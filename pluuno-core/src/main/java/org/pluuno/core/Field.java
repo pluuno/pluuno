@@ -2,9 +2,44 @@ package org.pluuno.core;
 
 import java.util.Arrays;
 
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.Serializer;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
+
 public class Field {
 	public static final int PAD = 7;
 	public static final long PAD_MASK = (1L << PAD) - 1;
+	
+	public static final int DEFAULT_WIDTH = 10;
+	public static final int DEFAULT_FIELD_HEIGHT = 20;
+	public static final int DEFAULT_BUFFER_HEIGHT = 20;
+	
+	public static class FieldSerializer extends Serializer<Field> {
+
+		@Override
+		public void write(Kryo kryo, Output output, Field object) {
+			output.writeInt(object.getWidth(), true);
+			output.writeInt(object.getFieldHeight(), true);
+			output.writeInt(object.getBufferHeight(), true);
+			for(long m : object.getMask()) {
+				output.writeLong(m);
+			}
+		}
+
+		@Override
+		public Field read(Kryo kryo, Input input, Class<Field> type) {
+			int width = input.readInt(true);
+			int fieldHeight = input.readInt(true);
+			int bufferHeight = input.readInt(true);
+			long[] mask = new long[fieldHeight + bufferHeight + PAD * 2];
+			for(int i = 0; i < mask.length; i++) {
+				mask[i] = input.readLong();
+			}
+			return new Field(width, fieldHeight, bufferHeight, mask);
+		}
+		
+	}
 	
 	private int width;
 	private int fieldHeight;
@@ -13,6 +48,10 @@ public class Field {
 	private long[] mask;
 	
 	private long wall;
+	
+	public Field() {
+		this(DEFAULT_WIDTH, DEFAULT_FIELD_HEIGHT, DEFAULT_BUFFER_HEIGHT);
+	}
 	
 	public Field(int width, int fieldHeight, int bufferHeight) {
 		if(width < 1 || width > 64 - (2 * PAD) || fieldHeight < 1 || bufferHeight < 1)
@@ -28,6 +67,11 @@ public class Field {
 		clear();
 	}
 
+	private Field(int width, int fieldHeight, int bufferHeight, long[] mask) {
+		this(width, fieldHeight, bufferHeight);
+		this.mask = mask;
+	}
+	
 	public void clear() {
 		Arrays.fill(mask, wall);
 		for(int i = 0; i < PAD; i++) {
@@ -73,5 +117,35 @@ public class Field {
 
 	public long[] getMask() {
 		return mask;
+	}
+	
+	@Override
+	public String toString() {
+		return toMaskString();
+	}
+	
+	public String toMaskString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append('\u2554');
+		for(int i = 0; i < width; i++)
+			sb.append("\u2550\u2550");
+		sb.append("\u2557\n");
+		for(int y = 0; y < bufferHeight + fieldHeight; y++) {
+			sb.append('\u2551');
+			for(int x = 0; x < width; x++) {
+				if((mask[PAD + y] & (1L << (PAD + x))) != 0)
+					sb.append("[]");
+				else if(y == bufferHeight - 1)
+					sb.append("__");
+				else
+					sb.append("  ");
+			}
+			sb.append("\u2551\n");
+		}
+		sb.append('\u255a');
+		for(int i = 0; i < width; i++)
+			sb.append("\u2550\u2550");
+		sb.append("\u255d\n");
+		return sb.toString();
 	}
 }
