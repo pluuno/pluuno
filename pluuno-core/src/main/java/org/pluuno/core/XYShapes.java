@@ -55,4 +55,18 @@ public class XYShapes {
 		xyshape |= (0xFF & y) << 24;
 		return xyshape;
 	}
+	
+	public static long clockwise(long xyshape) {
+		long r = ((xyshape & 0b11L) + 1) & 0b11L;
+		xyshape &= ~0b11L;
+		xyshape |= r;
+		return xyshape;
+	}
+	
+	public static long counterclockwise(long xyshape) {
+		long r = ((xyshape & 0b11L) + 3) & 0b11L;
+		xyshape &= ~0b11L;
+		xyshape |= r;
+		return xyshape;
+	}
 }

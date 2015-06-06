@@ -5,15 +5,17 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
+
 import javax.swing.JPanel;
 
 import org.pluuno.core.Blocks;
 import org.pluuno.core.Field;
+import org.pluuno.core.play.Engine;
 
-public class FieldPanel extends JPanel {
+public class EnginePanel extends JPanel {
 	private static final long serialVersionUID = 0;
 	
-	private Field field;
+	private Engine engine;
 	private int bufferHeight;
 	
 	private class BlockPanel extends JPanel {
@@ -29,7 +31,7 @@ public class FieldPanel extends JPanel {
 		
 		@Override
 		protected void paintComponent(Graphics g) {
-			Color c = Blocks.color(field.getBlock(x, y));
+			Color c = Blocks.color(engine.getBlock(x, y));
 			g.setColor(c);
 			g.fillRect(0, 0, getWidth(), getHeight());
 			if(y == 0 && bufferHeight > 0) {
@@ -39,13 +41,14 @@ public class FieldPanel extends JPanel {
 		}
 	}
 	
-	public FieldPanel(Field field, int bufferHeight) {
-		this.field = field;
+	public EnginePanel(Engine engine, int bufferHeight) {
+		this.engine = engine;
 		this.bufferHeight = bufferHeight;
-		setLayout(new GridLayout(field.getFieldHeight() + bufferHeight, field.getWidth()));
+		Field f = engine.getField();
+		setLayout(new GridLayout(f.getFieldHeight() + bufferHeight, f.getWidth()));
 		
-		for(int y = -bufferHeight; y < field.getFieldHeight(); y++) {
-			for(int x = 0; x < field.getWidth(); x++) {
+		for(int y = -bufferHeight; y < f.getFieldHeight(); y++) {
+			for(int x = 0; x < f.getWidth(); x++) {
 				add(new BlockPanel(x, y));
 			}
 		}

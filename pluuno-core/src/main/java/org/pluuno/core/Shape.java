@@ -46,7 +46,7 @@ public class Shape {
 	private int height;
 	
 	public Shape(ShapeType type, Orientation orientation, long mask) {
-		this(type, orientation, (short)((type.getId() << 2) | orientation.toInt()), mask);
+		this(type, orientation, (short)((type.getId() << 2) | (0b11 & orientation.toInt())), mask);
 	}
 
 	public Shape(ShapeType type, Orientation orientation, short id, long mask) {
@@ -98,9 +98,7 @@ public class Shape {
 	
 	@Override
 	public String toString() {
-		if(id < ShapeType.SHAPE_VALUES.length)
-			return String.format("%s_%s", type, orientation);
-		return String.format("<Shape %s %s>", type, orientation);
+		return type + "_" + orientation;
 	}
 	
 	public String toMaskString() {

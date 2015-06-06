@@ -2,17 +2,22 @@ package org.pluuno.core.play;
 
 import java.util.Objects;
 
+import org.pluuno.core.Blocks;
 import org.pluuno.core.Field;
 import org.pluuno.core.Orientation;
+import org.pluuno.core.Shape;
 import org.pluuno.core.ShapeType;
 import org.pluuno.core.XYShapes;
+import org.pluuno.core.customize.DefaultEngineConfiguration;
+import org.pluuno.core.customize.EngineConfiguration;
 
 public class Engine {
 	private Field field;
 	private Long xyshape;
+	private long block;
 	private ShapeType held;
 	
-	private EngineConfiguration config;
+	private EngineConfiguration config = DefaultEngineConfiguration.get();
 	
 	private int currentXYShapeID;
 	private long frameCount = 0;
@@ -135,11 +140,11 @@ public class Engine {
 			lock();
 			break;
 		case ROTATE_CLOCKWISE:
-			xyshape = config.getRotationSystem().rotateClockwise(xyshape, field);
+			xyshape = config.getRotationSystem().rotateClockwise(xyshape, this);
 			moveCount++;
 			break;
 		case ROTATE_COUNTERCLOCKWISE:
-			xyshape = config.getRotationSystem().rotateCounterclockwise(xyshape, field);
+			xyshape = config.getRotationSystem().rotateCounterclockwise(xyshape, this);
 			moveCount++;
 			break;
 		case HOLD:
@@ -155,22 +160,27 @@ public class Engine {
 	
 	public void spawn(ShapeType type) {
 		gravityFrameOffset = frameCount;
-		int x = config.getStartingPositions().startingX(type);
-		int y = config.getStartingPositions().startingY(type);
-		Orientation orientation = config.getStartingPositions().startingOrientation(type);
-		xyshape = XYShapes.of(type.getShape(orientation), x, y, ++currentXYShapeID);
+		int x = config.getStartingPositions().startingX(type, this);
+		int y = config.getStartingPositions().startingY(type, this);
+		Orientation orientation = config.getStartingPositions().startingOrientation(type, this);
+		Shape shape = type.getShape(orientation);
+		setXYShape(XYShapes.of(shape, x, y, ++currentXYShapeID));
 	}
 
 	public void lock() {
 		if(xyshape == null)
 			return;
-		field.blit(xyshape, config.getShapeColors().getColor(XYShapes.shape(xyshape)));
-		xyshape = null;
+		Shape shape = XYShapes.shape(xyshape);
+		field.blit(xyshape, Blocks.of(
+				Blocks.FLAG_SOLID,
+				config.getShapeColors().getInactiveColor(shape, this),
+				shape.getId()));
+		setXYShape(null);
 	}
 	
 	public void reset() {
 		field.clear();
-		xyshape = null;
+		setXYShape(null);
 		frameCount = 0;
 		moveCount = 0;
 		gravityFrameOffset = 0;
@@ -178,16 +188,37 @@ public class Engine {
 		over = false;
 	}
 	
+	public long getBlock(int x, int y) {
+		if(xyshape != null) {
+			int sx = XYShapes.x(xyshape);
+			int sy = XYShapes.y(xyshape);
+			if(x >= sx && x - sx < Shape.MAX_DIM && y >= sy && y - sy < Shape.MAX_DIM) {
+				long m = XYShapes.shape(xyshape).getSplitMask()[y - sy];
+				if((m & (1L << (x - sx))) != 0)
+					return block;
+			}
+		}
+		return field.getBlock(x, y);
+	}
+	
 	public Field getField() {
 		return field;
 	}
 
-	public Long getXyshape() {
+	public Long getXYShape() {
 		return xyshape;
 	}
 
-	public void setXyshape(Long xyshape) {
+	public void setXYShape(Long xyshape) {
 		this.xyshape = xyshape;
+		if(xyshape != null) {
+			Shape shape = XYShapes.shape(xyshape);
+			block = Blocks.of(
+					Blocks.FLAG_ACTIVE, 
+					config.getShapeColors().getActiveColor(shape, this), 
+					shape.getId());
+		} else
+			block = 0;
 	}
 	
 	public long getFrameCount() {
@@ -216,5 +247,9 @@ public class Engine {
 
 	public void setConfig(EngineConfiguration config) {
 		this.config = config;
+	}
+
+	public Long getBlock() {
+		return block;
 	}
 }

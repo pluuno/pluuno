@@ -16,4 +16,12 @@ public enum Orientation {
 	public static Orientation fromInt(int i) {
 		return VALUES[i];
 	}
+	
+	public Orientation clockwise() {
+		return VALUES[(toInt() + 1) % VALUES.length];
+	}
+	
+	public Orientation counterclockwise() {
+		return VALUES[(toInt() + 3) % VALUES.length];
+	}
 }

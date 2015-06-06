@@ -162,6 +162,6 @@ public class ShapeType {
 		if(id < TYPE_VALUES.length) {
 			return Character.toString("SZJLTIO".charAt(id));
 		}
-		return String.format("<ShapeType: %d>", id);
+		return Integer.toString(id);
 	}
 }

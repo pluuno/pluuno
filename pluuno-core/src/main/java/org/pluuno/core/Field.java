@@ -1,6 +1,5 @@
 package org.pluuno.core;
 
-import java.awt.Color;
 import java.util.Arrays;
 
 import com.esotericsoftware.kryo.Kryo;
@@ -97,12 +96,7 @@ public class Field {
 		return false;
 	}
 	
-	public void blit(long xyshape) {
-		Shape shape = XYShapes.shape(xyshape);
-		blit(xyshape, shape.getType().getDefaultColor());
-	}
-	
-	public void blit(long xyshape, Color c) {
+	public void blit(long xyshape, long block) {
 		int x = XYShapes.x(xyshape);
 		int y = XYShapes.y(xyshape);
 		Shape shape = XYShapes.shape(xyshape);
@@ -110,7 +104,6 @@ public class Field {
 		for(int i = 0; i < smask.length; i++) {
 			mask[top + y + i] |= (smask[i] << (PAD + x));
 		}
-		long block = Blocks.of(Blocks.FLAG_SOLID, c, shape.getId());
 		for(int by = 0; by < Shape.MAX_DIM; by++) {
 			for(int bx = 0; bx < Shape.MAX_DIM; bx++) {
 				if((shape.getMask() & (1L << (by * Shape.MAX_DIM + bx))) != 0)

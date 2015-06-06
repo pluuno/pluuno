@@ -10,14 +10,16 @@ import javax.swing.JFrame;
 import org.pluuno.core.Field;
 import org.pluuno.core.ShapeType;
 import org.pluuno.core.XYShapes;
+import org.pluuno.core.play.Engine;
 
-public class FieldPanelTest {
+public class EnginePanelTest {
 	public static void main(String[] args) {
 		Field field = new Field();
-		field.blit(XYShapes.of(ShapeType.S.getUp(), 0, 0, 0));
+		Engine engine = new Engine(field);
+		engine.setXYShape(XYShapes.of(ShapeType.S.getUp(), 0, 0, 0));
 		
-		FieldPanel fp = new FieldPanel(field, 4);
-		JFrame frame = new JFrame(FieldPanelTest.class.getName());
+		EnginePanel fp = new EnginePanel(engine, 4);
+		JFrame frame = new JFrame(EnginePanelTest.class.getName());
 		frame.setUndecorated(true);
 		frame.setLayout(new BorderLayout());
 		frame.add(fp, BorderLayout.CENTER);
