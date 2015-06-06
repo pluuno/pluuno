@@ -12,17 +12,39 @@ import org.pluuno.core.customize.DefaultEngineConfiguration;
 import org.pluuno.core.customize.EngineConfiguration;
 
 public class Engine {
+	public class Counts {
+		private int currentXYShapeID;
+		private long frameCount;
+		private long moveCount;
+		private long holdCount;
+		private long gravityFrameOffset;
+		
+		private Counts() {}
+		
+		public int getCurrentXYShapeID() {
+			return currentXYShapeID;
+		}
+		public long getFrameCount() {
+			return frameCount;
+		}
+		public long getMoveCount() {
+			return moveCount;
+		}
+		public long getHoldCount() {
+			return holdCount;
+		}
+		public long getGravityFrameOffset() {
+			return gravityFrameOffset;
+		}
+	}
+	
 	private Field field;
 	private Long xyshape;
 	private long block;
-	private ShapeType held;
+	private Long held;
 	
 	private EngineConfiguration config = DefaultEngineConfiguration.get();
-	
-	private int currentXYShapeID;
-	private long frameCount = 0;
-	private long moveCount = 0;
-	private long gravityFrameOffset = 0;
+	private Counts counts = new Counts();
 	
 	private boolean over;
 	
@@ -39,28 +61,28 @@ public class Engine {
 			long nxy = XYShapes.shifted(xyshape, 0, -1);
 			if(!field.intersects(nxy)) {
 				xyshape = nxy;
-				moveCount++;
+				counts.moveCount++;
 			}
 			break;
 		case SHIFT_RIGHT: 
 			nxy = XYShapes.shifted(xyshape, 1, 0);
 			if(!field.intersects(nxy)) {
 				xyshape = nxy;
-				moveCount++;
+				counts.moveCount++;
 			}
 			break;
 		case SHIFT_DOWN: 
 			nxy = XYShapes.shifted(xyshape, 0, 1);
 			if(!field.intersects(nxy)) {
 				xyshape = nxy;
-				moveCount++;
+				counts.moveCount++;
 			}
 			break;
 		case SHIFT_LEFT: 
 			nxy = XYShapes.shifted(xyshape, -1, 0);
 			if(!field.intersects(nxy)) {
 				xyshape = nxy;
-				moveCount++;
+				counts.moveCount++;
 			}
 			break;
 		case SOFT_SHIFT_UP:
@@ -71,7 +93,7 @@ public class Engine {
 				nxy = XYShapes.shifted(nxy, 0, -1);
 			}
 			if(was != xyshape)
-				moveCount++;
+				counts.moveCount++;
 			break;
 		case SOFT_SHIFT_RIGHT:
 			was = xyshape;
@@ -81,7 +103,7 @@ public class Engine {
 				nxy = XYShapes.shifted(nxy, 1, 0);
 			}
 			if(was != xyshape)
-				moveCount++;
+				counts.moveCount++;
 			break;
 		case SOFT_SHIFT_DOWN:
 			was = xyshape;
@@ -91,7 +113,7 @@ public class Engine {
 				nxy = XYShapes.shifted(nxy, 0, 1);
 			}
 			if(was != xyshape)
-				moveCount++;
+				counts.moveCount++;
 			break;
 		case SOFT_SHIFT_LEFT:
 			was = xyshape;
@@ -101,7 +123,7 @@ public class Engine {
 				nxy = XYShapes.shifted(nxy, -1, 0);
 			}
 			if(was != xyshape)
-				moveCount++;
+				counts.moveCount++;
 			break;
 		case HARD_SHIFT_UP:
 			nxy = XYShapes.shifted(xyshape, 0, -1);
@@ -109,7 +131,7 @@ public class Engine {
 				xyshape = nxy;
 				nxy = XYShapes.shifted(nxy, 0, -1);
 			}
-			moveCount++;
+			counts.moveCount++;
 			lock();
 			break;
 		case HARD_SHIFT_RIGHT:
@@ -118,7 +140,7 @@ public class Engine {
 				xyshape = nxy;
 				nxy = XYShapes.shifted(nxy, 1, 0);
 			}
-			moveCount++;
+			counts.moveCount++;
 			lock();
 			break;
 		case HARD_SHIFT_DOWN:
@@ -127,7 +149,7 @@ public class Engine {
 				xyshape = nxy;
 				nxy = XYShapes.shifted(nxy, 0, 1);
 			}
-			moveCount++;
+			counts.moveCount++;
 			lock();
 			break;
 		case HARD_SHIFT_LEFT:
@@ -136,35 +158,39 @@ public class Engine {
 				xyshape = nxy;
 				nxy = XYShapes.shifted(nxy, -1, 0);
 			}
-			moveCount++;
+			counts.moveCount++;
 			lock();
 			break;
 		case ROTATE_CLOCKWISE:
+			was = xyshape;
 			xyshape = config.getRotationSystem().rotateClockwise(xyshape, this);
-			moveCount++;
+			if(was != xyshape)
+				counts.moveCount++;
 			break;
 		case ROTATE_COUNTERCLOCKWISE:
+			was = xyshape;
 			xyshape = config.getRotationSystem().rotateCounterclockwise(xyshape, this);
-			moveCount++;
+			if(was != xyshape)
+				counts.moveCount++;
 			break;
 		case HOLD:
-			ShapeType wasHeld = held;
-			held = XYShapes.shape(xyshape).getType();
+			Long wasHeld = held;
+			held = xyshape;
 			xyshape = null;
 			if(wasHeld != null)
-				spawn(wasHeld);
-			moveCount++;
+				spawn(XYShapes.shape(wasHeld).getType());
+			counts.moveCount++;
 			break;
 		}
 	}
 	
 	public void spawn(ShapeType type) {
-		gravityFrameOffset = frameCount;
+		counts.gravityFrameOffset = counts.frameCount;
 		int x = config.getStartingPositions().startingX(type, this);
 		int y = config.getStartingPositions().startingY(type, this);
 		Orientation orientation = config.getStartingPositions().startingOrientation(type, this);
 		Shape shape = type.getShape(orientation);
-		setXYShape(XYShapes.of(shape, x, y, ++currentXYShapeID));
+		setXYShape(XYShapes.of(shape, x, y, ++counts.currentXYShapeID));
 	}
 
 	public void lock() {
@@ -181,10 +207,7 @@ public class Engine {
 	public void reset() {
 		field.clear();
 		setXYShape(null);
-		frameCount = 0;
-		moveCount = 0;
-		gravityFrameOffset = 0;
-		currentXYShapeID = 0;
+		counts = new Counts();
 		over = false;
 	}
 	
@@ -221,22 +244,10 @@ public class Engine {
 			block = 0;
 	}
 	
-	public long getFrameCount() {
-		return frameCount;
+	public Counts getCounts() {
+		return counts;
 	}
 	
-	public long getMoveCount() {
-		return moveCount;
-	}
-	
-	public long getGravityFrameOffset() {
-		return gravityFrameOffset;
-	}
-	
-	public void setGravityFrameOffset(long gravityFrameOffset) {
-		this.gravityFrameOffset = gravityFrameOffset;
-	}
-
 	public boolean isOver() {
 		return over;
 	}
@@ -251,5 +262,13 @@ public class Engine {
 
 	public Long getBlock() {
 		return block;
+	}
+
+	public Long getHeld() {
+		return held;
+	}
+	
+	public void setHeld(Long held) {
+		this.held = held;
 	}
 }
