@@ -1,7 +1,5 @@
 package org.pluuno.core;
 
-import java.awt.Color;
-
 import org.junit.Test;
 
 public class FieldTest {

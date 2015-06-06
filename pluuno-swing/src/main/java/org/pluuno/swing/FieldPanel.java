@@ -5,8 +5,6 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
-import java.util.Arrays;
-
 import javax.swing.JPanel;
 
 import org.pluuno.core.Blocks;

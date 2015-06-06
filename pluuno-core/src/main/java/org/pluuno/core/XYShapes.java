@@ -4,11 +4,15 @@ package org.pluuno.core;
  * Represents a {@link Shape} as a {@code long}.<p>
  * 
  * The format is:<br>
- * {@code [0-15: Shape id][16-23: X coordinate][24-31: Y coordinate][32-47: XYShape id]}
+ * {@code [0-15: Shape id][16-23: X coordinate][24-31: Y coordinate][32-63: XYShape id]}
  * @author Robin
  *
  */
 public class XYShapes {
+	public static final long SHAPE_ID_MASK = 0xFFFFL;
+	public static final long X_MASK = 0x0000FFL;
+	public static final long Y_MASK = 0x000000FFL;
+	public static final long XYSHAPE_ID_MASK = 0x00000000FFFFFFFFL;
 	
 	public static long of(Shape shape, int x, int y, int id) {
 		return of(shape.getId(), x, y, id);
@@ -19,7 +23,7 @@ public class XYShapes {
 		xyshape |= 0xFFFFL & shapeId;
 		xyshape |= (0xFFL & x) << 16;
 		xyshape |= (0xFFL & y) << 24;
-		xyshape |= (0xFFFFL & id) << 32;
+		xyshape |= (0xFFFFFFFFL & id) << 32;
 		return xyshape;
 	}
 	
@@ -40,6 +44,15 @@ public class XYShapes {
 	}
 	
 	public static int id(long xyshape) {
-		return (int) ((0xFFFF00000000L & xyshape) >>> 32);
+		return (int) ((0xFFFFFFFF00000000L & xyshape) >>> 32);
+	}
+	
+	public static long shifted(long xyshape, int deltaX, int deltaY) {
+		int x = deltaX + x(xyshape);
+		int y = deltaY + y(xyshape);
+		xyshape &= ~(X_MASK | Y_MASK);
+		xyshape |= (0xFF & x) << 16;
+		xyshape |= (0xFF & y) << 24;
+		return xyshape;
 	}
 }
