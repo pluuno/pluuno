@@ -2,6 +2,7 @@ package org.pluuno.swing;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
@@ -66,6 +67,10 @@ public class EnginePanel extends JPanel implements FieldListener {
 		setOpaque(true);
 	}
 
+	public void setPreferredBlockSize(int size) {
+		setPreferredSize(new Dimension(size * engine.getField().getWidth(), size * (bufferHeight + engine.getField().getFieldHeight())));
+	}
+	
 	@Override
 	public void blockModified(int x, int y) {
 		if(y < -bufferHeight)
