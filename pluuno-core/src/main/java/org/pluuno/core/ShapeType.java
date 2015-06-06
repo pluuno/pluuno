@@ -1,5 +1,7 @@
 package org.pluuno.core;
 
+import java.awt.Color;
+
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
@@ -7,32 +9,32 @@ import com.esotericsoftware.kryo.io.Output;
 
 public class ShapeType {
 	
-	public static final ShapeType S = new ShapeType(0, 3, 
+	public static final ShapeType S = new ShapeType(0, 3, new Color(105, 190, 40),
 			0b011,
 			0b110,
 			0b000);
-	public static final ShapeType Z = new ShapeType(1, 3, 
+	public static final ShapeType Z = new ShapeType(1, 3, new Color(237, 41, 57),
 			0b110,
 			0b011,
 			0b000);
-	public static final ShapeType J = new ShapeType(2, 3, 
+	public static final ShapeType J = new ShapeType(2, 3, new Color(0, 101, 189),
 			0b100,
 			0b111,
 			0b000);
-	public static final ShapeType L = new ShapeType(3, 3, 
+	public static final ShapeType L = new ShapeType(3, 3, new Color(255, 121, 0),
 			0b001,
 			0b111,
 			0b000);
-	public static final ShapeType T = new ShapeType(4, 3,
+	public static final ShapeType T = new ShapeType(4, 3, new Color(149, 45, 152),
 			0b010,
 			0b111,
 			0b000);
-	public static final ShapeType I = new ShapeType(5, 4, 
+	public static final ShapeType I = new ShapeType(5, 4, new Color(0, 159, 218),
 			0b0000,
 			0b1111,
 			0b0000,
 			0b0000);
-	public static final ShapeType O = new ShapeType(6, 2, 
+	public static final ShapeType O = new ShapeType(6, 2, new Color(254, 203, 0),
 			0b11,
 			0b11);
 	
@@ -59,6 +61,7 @@ public class ShapeType {
 			if(object.getId() >= TYPE_VALUES.length) {
 				output.writeInt(object.getDim(), true);
 				output.writeLong(object.getUp().getMask());
+				output.writeInt(object.getDefaultColor().getRGB());
 			}
 		}
 
@@ -69,7 +72,8 @@ public class ShapeType {
 				return TYPE_VALUES[id];
 			int dim = input.readInt(true);
 			long mask = input.readLong();
-			return new ShapeType(id, dim, mask);
+			int defaultColorRGB = input.readInt();
+			return new ShapeType(id, dim, new Color(defaultColorRGB), mask);
 		}
 		
 	}
@@ -106,15 +110,17 @@ public class ShapeType {
 	
 	private short id;
 	private int dim;
+	private Color defaultColor;
 	
 	private Shape[] shapes;
 
-	public ShapeType(int id, int dim, long... m) {
-		this(id, dim, join(m) >>> (8 - dim));
+	public ShapeType(int id, int dim, Color defaultColor, long... m) {
+		this(id, dim, defaultColor, join(m) >>> (8 - dim));
 	}
 	
-	public ShapeType(int id, int dim, long mask) {
+	public ShapeType(int id, int dim, Color defaultColor, long mask) {
 		this.id = (short) id;
+		this.defaultColor = defaultColor;
 		this.dim = dim;
 		shapes = new Shape[4];
 		shapes[0] = new Shape(this, Orientation.UP, mask);
@@ -131,6 +137,9 @@ public class ShapeType {
 	}
 	public int getDim() {
 		return dim;
+	}
+	public Color getDefaultColor() {
+		return defaultColor;
 	}
 	public Shape getShape(Orientation orientation) {
 		return shapes[orientation.toInt()];

@@ -8,7 +8,7 @@ import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 
 public class Shape {
-	private static final int MAX_DIM = 8;
+	public static final int MAX_DIM = 8;
 	
 	public static Shape of(int id) {
 		return ShapeType.SHAPE_VALUES[id];
