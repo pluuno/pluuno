@@ -36,8 +36,8 @@ public class ShapeType {
 			0b11,
 			0b11);
 	
-	public static ShapeType of(short id) {
-		return VALUES[id];
+	public static ShapeType of(int id) {
+		return TYPE_VALUES[id];
 	}
 	
 	public static class ShapeTypeSerializer extends Serializer<ShapeType> {
@@ -45,7 +45,7 @@ public class ShapeType {
 		@Override
 		public void write(Kryo kryo, Output output, ShapeType object) {
 			output.writeInt(object.getId(), true);
-			if(object.getId() >= VALUES.length) {
+			if(object.getId() >= TYPE_VALUES.length) {
 				output.writeInt(object.getDim(), true);
 				output.writeLong(object.getUp().getMask());
 			}
@@ -54,8 +54,8 @@ public class ShapeType {
 		@Override
 		public ShapeType read(Kryo kryo, Input input, Class<ShapeType> type) {
 			int id = input.readInt(true);
-			if(id < VALUES.length)
-				return VALUES[id];
+			if(id < TYPE_VALUES.length)
+				return TYPE_VALUES[id];
 			int dim = input.readInt(true);
 			long mask = input.readLong();
 			return new ShapeType(id, dim, mask);
@@ -63,13 +63,14 @@ public class ShapeType {
 		
 	}
 	
-	private static final ShapeType[] VALUES = new ShapeType[] {S, Z, J, L, T, I, O};
+	public static final ShapeType[] TYPE_VALUES = new ShapeType[] {S, Z, J, L, T, I, O};
+	public static final Shape[] SHAPE_VALUES = new Shape[TYPE_VALUES.length * 4];
 	static {
-		for(int i = 0; i < 7; i++) {
-			Shape.VALUES[4*i + 0] = VALUES[i].getUp();
-			Shape.VALUES[4*i + 1] = VALUES[i].getRight();
-			Shape.VALUES[4*i + 2] = VALUES[i].getDown();
-			Shape.VALUES[4*i + 3] = VALUES[i].getLeft();
+		for(int i = 0; i < TYPE_VALUES.length; i++) {
+			SHAPE_VALUES[4*i + 0] = TYPE_VALUES[i].getUp();
+			SHAPE_VALUES[4*i + 1] = TYPE_VALUES[i].getRight();
+			SHAPE_VALUES[4*i + 2] = TYPE_VALUES[i].getDown();
+			SHAPE_VALUES[4*i + 3] = TYPE_VALUES[i].getLeft();
 		}
 	}
 	
@@ -106,10 +107,7 @@ public class ShapeType {
 	private short id;
 	private int dim;
 	
-	private Shape up;
-	private Shape right;
-	private Shape down;
-	private Shape left;
+	private Shape[] shapes;
 
 	public ShapeType(int id, int dim, long... m) {
 		this(id, dim, join(m) >>> (8 - dim));
@@ -118,13 +116,14 @@ public class ShapeType {
 	public ShapeType(int id, int dim, long mask) {
 		this.id = (short) id;
 		this.dim = dim;
-		up = new Shape(this, Orientation.UP, mask);
+		shapes = new Shape[4];
+		shapes[0] = new Shape(this, Orientation.UP, mask);
 		mask = rotate8x8Right(mask) >>> (8 - dim);
-		right = new Shape(this, Orientation.RIGHT, mask);
+		shapes[1] = new Shape(this, Orientation.RIGHT, mask);
 		mask = rotate8x8Right(mask) >>> (8 - dim);
-		down = new Shape(this, Orientation.DOWN, mask);
+		shapes[2] = new Shape(this, Orientation.DOWN, mask);
 		mask = rotate8x8Right(mask) >>> (8 - dim);
-		left = new Shape(this, Orientation.LEFT, mask);
+		shapes[3] = new Shape(this, Orientation.LEFT, mask);
 	}
 	
 	public short getId() {
@@ -133,22 +132,25 @@ public class ShapeType {
 	public int getDim() {
 		return dim;
 	}
+	public Shape getShape(Orientation orientation) {
+		return shapes[orientation.toInt()];
+	}
 	public Shape getUp() {
-		return up;
+		return getShape(Orientation.UP);
 	}
 	public Shape getRight() {
-		return right;
+		return getShape(Orientation.RIGHT);
 	}
 	public Shape getDown() {
-		return down;
+		return getShape(Orientation.DOWN);
 	}
 	public Shape getLeft() {
-		return left;
+		return getShape(Orientation.LEFT);
 	}
 	
 	@Override
 	public String toString() {
-		if(id < VALUES.length) {
+		if(id < TYPE_VALUES.length) {
 			return Character.toString("SZJLTIO".charAt(id));
 		}
 		return String.format("<ShapeType: %d>", id);

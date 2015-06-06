@@ -10,15 +10,15 @@ import com.esotericsoftware.kryo.io.Output;
 public class Shape {
 	public static final int MAX_DIM = 8;
 	
-	public static Shape of(short id) {
-		return VALUES[id];
+	public static Shape of(int id) {
+		return ShapeType.SHAPE_VALUES[id];
 	}
 	
 	public static class ShapeSerializer extends Serializer<Shape> {
 		@Override
 		public void write(Kryo kryo, Output output, Shape object) {
 			output.writeShort(object.getId());
-			if(object.getId() >= VALUES.length) {
+			if(object.getId() >= ShapeType.SHAPE_VALUES.length) {
 				kryo.writeObject(output, object.getType());
 				output.writeInt(object.getOrientation().toInt(), true);
 				output.writeLong(object.getMask());
@@ -28,16 +28,14 @@ public class Shape {
 		@Override
 		public Shape read(Kryo kryo, Input input, Class<Shape> t) {
 			short id = input.readShort();
-			if(id < VALUES.length)
-				return VALUES[id];
+			if(id < ShapeType.SHAPE_VALUES.length)
+				return ShapeType.SHAPE_VALUES[id];
 			ShapeType type = kryo.readObject(input, ShapeType.class);
 			Orientation orientation = Orientation.fromInt(input.readInt(true));
 			long mask = input.readLong();
 			return new Shape(type, orientation, id, mask);
 		}
 	}
-	
-	static final Shape[] VALUES = new Shape[28];
 	
 	private ShapeType type;
 	private Orientation orientation;
@@ -100,7 +98,7 @@ public class Shape {
 	
 	@Override
 	public String toString() {
-		if(id < VALUES.length)
+		if(id < ShapeType.SHAPE_VALUES.length)
 			return String.format("%s_%s", type, orientation);
 		return String.format("<Shape %s %s>", type, orientation);
 	}
