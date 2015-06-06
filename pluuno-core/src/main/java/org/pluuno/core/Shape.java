@@ -44,6 +44,8 @@ public class Shape {
 	private short id;
 	private long mask;
 	private long[] splitMask;
+	private int width;
+	private int height;
 	
 	public Shape(ShapeType type, Orientation orientation, long mask) {
 		this(type, orientation, (short)((type.getId() << 2) | orientation.toInt()), mask);
@@ -58,6 +60,22 @@ public class Shape {
 		for(int i = 0; i < MAX_DIM; i++) {
 			splitMask[i] = (mask & (0xFFL << (i * MAX_DIM))) >>> (i * MAX_DIM);
 		}
+		height = -1;
+		width = -1;
+		for(int i = 0; i <  MAX_DIM; i++) {
+			if(height == -1 && splitMask[i] == 0)
+				height = i;
+			else if(splitMask[i] != 0)
+				height = -1;
+			if(width == -1 && (mask & (0x0101010101010101L << i)) == 0)
+				width = i;
+			else if((mask & (0x0101010101010101L << i)) != 0)
+				width = -1;
+		}
+		if(height == -1)
+			height = MAX_DIM;
+		if(width == -1)
+			width = MAX_DIM;
 	}
 
 	public ShapeType getType() {
@@ -108,5 +126,13 @@ public class Shape {
 			sb.append("\u2550\u2550");
 		sb.append("\u255d\n");
 		return sb.toString();
+	}
+
+	public int getWidth() {
+		return width;
+	}
+
+	public int getHeight() {
+		return height;
 	}
 }
