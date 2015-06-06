@@ -34,34 +34,34 @@ public class InputListener implements KeyListener, EngineListener {
 	private synchronized void perform(boolean tick, boolean dasOnly) {
 		switch(command) {
 		case SHIFT_UP:
-			if(dasCount == 0 && !dasOnly)
-				engine.perform(command);
 			if(dasCount >= engine.getConfig().getDelays().getDASUp())
 				engine.perform(Command.SOFT_SHIFT_UP);
+			else if(dasCount == 0 && !dasOnly)
+				engine.perform(command);
 			if(tick)
 				dasCount++;
 			break;
 		case SHIFT_RIGHT:
-			if(dasCount == 0 && !dasOnly)
-				engine.perform(command);
 			if(dasCount >= engine.getConfig().getDelays().getDASRight())
 				engine.perform(Command.SOFT_SHIFT_RIGHT);
+			else if(dasCount == 0 && !dasOnly)
+				engine.perform(command);
 			if(tick)
 				dasCount++;
 			break;
 		case SHIFT_DOWN:
-			if(dasCount == 0 && !dasOnly)
-				engine.perform(command);
 			if(dasCount >= engine.getConfig().getDelays().getDASDown())
 				engine.perform(Command.SOFT_SHIFT_DOWN);
+			else if(dasCount == 0 && !dasOnly)
+				engine.perform(command);
 			if(tick)
 				dasCount++;
 			break;
 		case SHIFT_LEFT:
-			if(dasCount == 0 && !dasOnly)
-				engine.perform(command);
 			if(dasCount >= engine.getConfig().getDelays().getDASLeft())
 				engine.perform(Command.SOFT_SHIFT_LEFT);
+			else if(dasCount == 0 && !dasOnly)
+				engine.perform(command);
 			if(tick)
 				dasCount++;
 			break;
