@@ -2,6 +2,8 @@ package org.pluuno.swing;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.pluuno.core.play.Command;
 import org.pluuno.core.play.Engine;
@@ -9,16 +11,16 @@ import org.pluuno.core.play.EngineEvent;
 import org.pluuno.core.play.EngineListener;
 
 public class InputListener implements KeyListener, EngineListener {
+	private static final Command[] COMMANDS = Command.values();
 
 	private Engine engine;
-	private volatile Command command = Command.NO_ACTION;
-	private volatile long dasCount;
-	private boolean[] held = new boolean[KeyEvent.VK_CONTEXT_MENU];
-	
+	private List<Command> held = new ArrayList<>();
+	private long[] das = new long[COMMANDS.length];
+
 	public InputListener(Engine engine) {
 		this.engine = engine;
 	}
-	
+
 	@Override
 	public void commandPerformed(EngineEvent e) {
 	}
@@ -31,60 +33,59 @@ public class InputListener implements KeyListener, EngineListener {
 	public void shapeLocked(EngineEvent e) {
 	}
 
-	private synchronized void perform(boolean tick, boolean dasOnly) {
-		switch(command) {
-		case NO_ACTION:
-			break;
-		case SHIFT_UP:
-			if(dasCount >= engine.getConfig().getDelays().getDASUp())
-				engine.perform(Command.SOFT_SHIFT_UP);
-			else if(dasCount == 0 && !dasOnly)
-				engine.perform(command);
-			if(tick)
-				dasCount++;
-			break;
-		case SHIFT_RIGHT:
-			if(dasCount >= engine.getConfig().getDelays().getDASRight())
-				engine.perform(Command.SOFT_SHIFT_RIGHT);
-			else if(dasCount == 0 && !dasOnly)
-				engine.perform(command);
-			if(tick)
-				dasCount++;
-			break;
-		case SHIFT_DOWN:
-			if(dasCount >= engine.getConfig().getDelays().getDASDown())
-				engine.perform(Command.SOFT_SHIFT_DOWN);
-			else if(dasCount == 0 && !dasOnly)
-				engine.perform(command);
-			if(tick)
-				dasCount++;
-			break;
-		case SHIFT_LEFT:
-			if(dasCount >= engine.getConfig().getDelays().getDASLeft())
-				engine.perform(Command.SOFT_SHIFT_LEFT);
-			else if(dasCount == 0 && !dasOnly)
-				engine.perform(command);
-			if(tick)
-				dasCount++;
-			break;
-		case HARD_SHIFT_UP:
-		case HARD_SHIFT_RIGHT:
-		case HARD_SHIFT_DOWN:
-		case HARD_SHIFT_LEFT:
-		case HOLD:
-			if(dasOnly)
-				return;
-			engine.perform(command);
-			command = Command.NO_ACTION;
-			break;
-		case ROTATE_CLOCKWISE:
-		case ROTATE_COUNTERCLOCKWISE:
-			engine.perform(command);
-			command = Command.NO_ACTION;
-			break;
+	public synchronized void perform(boolean tick, boolean dasOnly) {
+		if(tick) {
+			for(Command c : held)
+				das[c.ordinal()]++;
+		}
+		if(held.size() == 1) {
+			Command c = held.get(0);
+			switch(c) {
+			case NO_ACTION:
+				break;
+			case SHIFT_UP:
+				if(das[c.ordinal()] >= engine.getConfig().getDelays().getDASUp())
+					engine.perform(Command.SOFT_SHIFT_UP);
+				else if(das[c.ordinal()] == 0 && !dasOnly)
+					engine.perform(c);
+				break;
+			case SHIFT_RIGHT:
+				if(das[c.ordinal()] >= engine.getConfig().getDelays().getDASRight())
+					engine.perform(Command.SOFT_SHIFT_RIGHT);
+				else if(das[c.ordinal()] == 0 && !dasOnly)
+					engine.perform(c);
+				break;
+			case SHIFT_DOWN:
+				if(das[c.ordinal()] >= engine.getConfig().getDelays().getDASDown())
+					engine.perform(Command.SOFT_SHIFT_DOWN);
+				else if(das[c.ordinal()] == 0 && !dasOnly)
+					engine.perform(c);
+				break;
+			case SHIFT_LEFT:
+				if(das[c.ordinal()] >= engine.getConfig().getDelays().getDASLeft())
+					engine.perform(Command.SOFT_SHIFT_LEFT);
+				else if(das[c.ordinal()] == 0 && !dasOnly)
+					engine.perform(c);
+				break;
+			case HARD_SHIFT_UP:
+			case HARD_SHIFT_RIGHT:
+			case HARD_SHIFT_DOWN:
+			case HARD_SHIFT_LEFT:
+			case HOLD:
+				if(dasOnly)
+					return;
+				engine.perform(c);
+				c = Command.NO_ACTION;
+				break;
+			case ROTATE_CLOCKWISE:
+			case ROTATE_COUNTERCLOCKWISE:
+				engine.perform(c);
+				c = Command.NO_ACTION;
+				break;
+			}
 		}
 	}
-	
+
 	@Override
 	public void shapeSpawned(EngineEvent e) {
 		perform(false, true);
@@ -107,46 +108,44 @@ public class InputListener implements KeyListener, EngineListener {
 	public void keyTyped(KeyEvent e) {
 	}
 
-	@Override
-	public synchronized void keyPressed(KeyEvent e) {
-		int kc = e.getKeyCode();
-		if(kc < 0 || kc > held.length || held[kc])
-			return;
-		held[kc] = true;
-		dasCount = 0;
+	public Command commandOf(KeyEvent e) {
 		switch(e.getKeyCode()) {
 		case KeyEvent.VK_UP:
-			command = Command.SHIFT_UP;
-			break;
+			return Command.SHIFT_UP;
 		case KeyEvent.VK_RIGHT:
-			command = Command.SHIFT_RIGHT;
-			break;
+			return Command.SHIFT_RIGHT;
 		case KeyEvent.VK_DOWN:
-			command = Command.SHIFT_DOWN;
-			break;
+			return Command.SHIFT_DOWN;
 		case KeyEvent.VK_LEFT:
-			command = Command.SHIFT_LEFT;
-			break;
+			return Command.SHIFT_LEFT;
 		case KeyEvent.VK_Z:
-			command = Command.ROTATE_COUNTERCLOCKWISE;
-			break;
+			return Command.ROTATE_COUNTERCLOCKWISE;
 		case KeyEvent.VK_X:
-			command = Command.ROTATE_CLOCKWISE;
-			break;
+			return Command.ROTATE_CLOCKWISE;
 		case KeyEvent.VK_SPACE:
-			command = Command.HOLD;
-			break;
+			return Command.HOLD;
 		}
+		return null;
+	}
+
+	@Override
+	public synchronized void keyPressed(KeyEvent e) {
+		Command c = commandOf(e);
+
+		if(c == null || held.contains(c))
+			return;
+
+		held.add(c);
+		das[c.ordinal()] = 0;
 	}
 
 	@Override
 	public synchronized void keyReleased(KeyEvent e) {
-		int kc = e.getKeyCode();
-		if(kc < 0 || kc > held.length || !held[kc])
+		Command c = commandOf(e);
+		if(c == null)
 			return;
-		held[kc] = false;
-		command = Command.NO_ACTION;
-		dasCount = 0;
+		held.remove(c);
+		das[c.ordinal()] = 0;
 	}
 
 }
