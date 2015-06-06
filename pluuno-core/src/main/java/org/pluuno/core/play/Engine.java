@@ -67,7 +67,7 @@ public class Engine {
 	private long ghostBlock;
 	private Long held;
 	
-	private EngineConfiguration config = DefaultEngineConfiguration.get();
+	private EngineConfiguration config = new DefaultEngineConfiguration();
 	private Counts counts = new Counts();
 	private EngineEventHelper events = new EngineEventHelper();
 	
@@ -222,7 +222,7 @@ public class Engine {
 				ghost = config.getGhosting().computeGhost(xyshape, this);
 				ghostBlock = Blocks.of(
 						Blocks.FLAG_ACTIVE | Blocks.FLAG_GHOST, 
-						config.getShapeColors().getColor(Blocks.FLAG_ACTIVE | Blocks.FLAG_GHOST, shape.getId(), this), 
+						XYShapes.id(xyshape), 
 						shape.getId());
 			} else {
 				ghost = null;
@@ -256,7 +256,7 @@ public class Engine {
 		ghost = config.getGhosting().computeGhost(xyshape, this);
 		ghostBlock = Blocks.of(
 				Blocks.FLAG_ACTIVE | Blocks.FLAG_GHOST, 
-				config.getShapeColors().getColor(Blocks.FLAG_ACTIVE | Blocks.FLAG_GHOST, shape.getId(), this), 
+				XYShapes.id(xyshape), 
 				shape.getId());
 	}
 
@@ -267,7 +267,7 @@ public class Engine {
 		Shape shape = XYShapes.shape(xyshape);
 		field.blit(xyshape, Blocks.of(
 				Blocks.FLAG_SOLID,
-				config.getShapeColors().getColor(Blocks.FLAG_SOLID, shape.getId(), this),
+				XYShapes.id(xyshape),
 				shape.getId()));
 		setXYShape(null);
 		events.fireShapeLocked(was);
@@ -322,12 +322,12 @@ public class Engine {
 			Shape shape = XYShapes.shape(xyshape);
 			block = Blocks.of(
 					Blocks.FLAG_ACTIVE, 
-					config.getShapeColors().getColor(Blocks.FLAG_ACTIVE, shape.getId(), this), 
+					XYShapes.id(xyshape), 
 					shape.getId());
 			ghost = config.getGhosting().computeGhost(xyshape, this);
 			ghostBlock = Blocks.of(
 					Blocks.FLAG_ACTIVE | Blocks.FLAG_GHOST, 
-					config.getShapeColors().getColor(Blocks.FLAG_ACTIVE | Blocks.FLAG_GHOST, shape.getId(), this), 
+					XYShapes.id(xyshape), 
 					shape.getId());
 		} else {
 			ghost = null;

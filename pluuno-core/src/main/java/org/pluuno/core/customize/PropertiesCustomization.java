@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 
@@ -53,6 +55,7 @@ Ghosting
 	}
 	
 	private Properties props;
+	private Map<String, Object> cache = new HashMap<>();
 	
 	public PropertiesCustomization(URL url) {
 		this(load(Objects.requireNonNull(url)));
@@ -62,7 +65,17 @@ Ghosting
 		this.props = Objects.requireNonNull(props);
 	}
 
-	private String pv(ShapeType type, String suffix) {
+	@SuppressWarnings("unchecked")
+	public <T> T getCache(String key) {
+		return (T) cache.get(key);
+	}
+	
+	public <T> T setCache(String key, T value) {
+		cache.put(key, value);
+		return value;
+	}
+	
+	protected String pv(ShapeType type, String suffix) {
 		String v = props.getProperty(type + suffix);
 		if(v == null)
 			v = props.getProperty(type.getId() + suffix);
@@ -71,7 +84,7 @@ Ghosting
 		return v;
 	}
 	
-	private String pv(Shape shape, String suffix) {
+	protected String pv(Shape shape, String suffix) {
 		String v = props.getProperty(shape.getType() + "." + shape.getOrientation().toString().toLowerCase() + suffix);
 		if(v == null)
 			v = props.getProperty(shape.getType().getId() + "." + shape.getOrientation().toString().toLowerCase() + suffix);
@@ -86,38 +99,52 @@ Ghosting
 	
 	@Override
 	public int startingX(ShapeType type, Engine engine) {
+		Integer c = getCache(type + STARTING_X_OFFSET);
+		if(c != null)
+			return c;
 		int xoff = Integer.parseInt(pv(type, STARTING_X_OFFSET));
 		Shape shape = type.getShape(startingOrientation(type, engine));
-		return engine.getField().getWidth() / 2 - (shape.getWidth()+1) / 2 + xoff;
+		return setCache(type + STARTING_X_OFFSET, engine.getField().getWidth() / 2 - (shape.getWidth()+1) / 2 + xoff);
 	}
 
 	@Override
 	public int startingY(ShapeType type, Engine engine) {
+		Integer c = getCache(type + STARTING_Y_OFFSET);
+		if(c != null)
+			return c;
 		int yoff = Integer.parseInt(pv(type, STARTING_Y_OFFSET));
 		Shape shape = type.getShape(startingOrientation(type, engine));
-		return -shape.getHeight() + yoff;
+		return setCache(type + STARTING_Y_OFFSET, -shape.getHeight() + yoff);
 	}
 
 	@Override
 	public Orientation startingOrientation(ShapeType type, Engine engine) {
-		return Orientation.valueOf(pv(type, STARTING_ORIENTATION).toUpperCase());
+		Orientation c = getCache(type + STARTING_ORIENTATION);
+		if(c != null)
+			return c;
+		return setCache(type + STARTING_ORIENTATION, Orientation.valueOf(pv(type, STARTING_ORIENTATION).toUpperCase()));
 	}
 
 	@Override
 	public Color getColor(int blockFlags, int shapeId, Engine engine) {
+		Color c = getCache("color." + blockFlags + "." + shapeId);
+		if(c != null)
+			return c;
 		if((blockFlags & Blocks.FLAG_GHOST) != 0)
-			return getGhostColor(Shape.of(shapeId), engine);
-		if((blockFlags & Blocks.FLAG_ACTIVE) != 0)
-			return getActiveColor(Shape.of(shapeId), engine);
-		if((blockFlags & Blocks.FLAG_GARBAGE) != 0)
-			return getGarbageColor();
-		if((blockFlags & Blocks.FLAG_WALL) != 0)
-			return getWallColor();
-		if((blockFlags & Blocks.FLAG_SOLID) != 0)
-			return getInactiveColor(Shape.of(shapeId), engine);
-		if((blockFlags & Blocks.FLAG_BUFFER) != 0)
-			return getBufferColor();
-		return getBackgroundColor();
+			c = getGhostColor(Shape.of(shapeId), engine);
+		else if((blockFlags & Blocks.FLAG_ACTIVE) != 0)
+			c = getActiveColor(Shape.of(shapeId), engine);
+		else if((blockFlags & Blocks.FLAG_GARBAGE) != 0)
+			c = getGarbageColor();
+		else if((blockFlags & Blocks.FLAG_WALL) != 0)
+			c = getWallColor();
+		else if((blockFlags & Blocks.FLAG_SOLID) != 0)
+			c = getInactiveColor(Shape.of(shapeId), engine);
+		else if((blockFlags & Blocks.FLAG_BUFFER) != 0)
+			c = getBufferColor();
+		else
+			c = getBackgroundColor();
+		return setCache("color." + blockFlags + "." + shapeId, c);
 	}
 
 	public Color getInactiveColor(Shape shape, Engine engine) {

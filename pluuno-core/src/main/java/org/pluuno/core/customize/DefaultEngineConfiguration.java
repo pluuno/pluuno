@@ -2,17 +2,12 @@ package org.pluuno.core.customize;
 
 
 public class DefaultEngineConfiguration implements EngineConfiguration {
-	private static final DefaultEngineConfiguration instance = new DefaultEngineConfiguration();
-	public static DefaultEngineConfiguration get() {
-		return instance;
-	}
-	
 	private ShapeColors shapeColors;
 	private StartingPositions startingPositions;
 	private RotationSystem rotationSystem;
 	private Ghosting ghosting;
 	
-	private DefaultEngineConfiguration() {
+	public DefaultEngineConfiguration() {
 		PropertiesCustomization pc = new PropertiesCustomization(getClass().getResource("default.properties"));
 		shapeColors = pc;
 		startingPositions = pc;

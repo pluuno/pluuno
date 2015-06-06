@@ -8,7 +8,7 @@ import org.pluuno.core.XYShapes;
 import org.pluuno.core.play.Engine;
 
 public class DefaultEngineConfigurationTest {
-	private DefaultEngineConfiguration config = DefaultEngineConfiguration.get();
+	private DefaultEngineConfiguration config = new DefaultEngineConfiguration();
 	
 	private Engine engine;
 	

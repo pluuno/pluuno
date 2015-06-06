@@ -1,6 +1,5 @@
 package org.pluuno.core;
 
-import java.awt.Color;
 import java.util.Arrays;
 
 import com.esotericsoftware.kryo.Kryo;
@@ -82,15 +81,15 @@ public class Field {
 			mask[mask.length - 1 - i] = -1L;
 		}
 		Arrays.fill(blocks, 0L);
-		long wallBlock = Blocks.of(Blocks.FLAG_SOLID | Blocks.FLAG_WALL, Color.BLACK, (short) 0);
-		long[] tbp = new long[width * PAD];
+		long wallBlock = Blocks.of(Blocks.FLAG_SOLID | Blocks.FLAG_WALL, -1, (short) 0);
+		long[] tbp = new long[64 * PAD];
 		Arrays.fill(tbp, wallBlock);
 		System.arraycopy(tbp, 0, blocks, 0, tbp.length);
 		System.arraycopy(tbp, 0, blocks, blocks.length - tbp.length, tbp.length);
 		for(int y = -bufferHeight; y < fieldHeight; y++) {
 			for(int x = 0; x < PAD; x++) {
 				blocks[64 * (top + y) + x] = wallBlock;
-				blocks[64 * (top + y) + 63 - x] = wallBlock;
+				blocks[64 * (top + y) + PAD + width + x] = wallBlock;
 			}
 		}
 	}
@@ -129,6 +128,8 @@ public class Field {
 	}
 	
 	public long getBlock(int x, int y) {
+		if(x < -PAD || x >= width + PAD || y < -bufferHeight - PAD || y >= fieldHeight + PAD)
+			return 0;
 		long b = blocks[64 * (top + y) + PAD + x];
 		if(y < 0)
 			b |= Blocks.FLAG_BUFFER;

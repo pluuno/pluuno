@@ -6,43 +6,29 @@ import java.awt.Graphics;
 import java.util.Random;
 
 import javax.swing.JFrame;
-import javax.swing.JPanel;
-
 import org.pluuno.core.Field;
 import org.pluuno.core.ShapeType;
-import org.pluuno.core.XYShapes;
 import org.pluuno.core.play.Engine;
 
 public class EnginePanelTest {
-	private static class RandomJFrame extends JFrame {
-		public RandomJFrame() {
-			super(EnginePanelTest.class.getName());
-			setRootPaneCheckingEnabled(true);
-		}
-	}
-	
 	public static void main(String[] args) {
 		Field field = new Field();
 		Engine engine = new Engine(field);
 		engine.spawn(ShapeType.T);
 		
-		EnginePanel fp = new EnginePanel(engine, 4);
-		JFrame frame = new RandomJFrame();
-		JPanel content = new JPanel(new BorderLayout()) {
+		EnginePanel fp = new EnginePanel(engine, 4) {
+			private static final long serialVersionUID = 0;
+			
 			private Random rnd = new Random();
 			@Override
 			protected void paintComponent(Graphics g) {
-				for(int y = 0; y < getHeight(); y++) {
-					for(int x = 0; x < getWidth(); x++) {
-						g.setColor(new Color(rnd.nextInt() & 0xFFFFFF));
-						g.drawRect(x, y, 1, 1);
-					}
+				for(int i = 0; i < getWidth() * getHeight() / 100; i++) {
+					g.setColor(new Color(rnd.nextInt() & 0xFFFFFF));
+					g.fillRect(rnd.nextInt(getWidth() - 10), rnd.nextInt(getHeight() - 10), 10, 10);
 				}
 			}
 		};
-		content.setOpaque(true);
-		
-		frame.setContentPane(content);
+		JFrame frame = new JFrame();
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.add(fp, BorderLayout.CENTER);
 		frame.pack();
