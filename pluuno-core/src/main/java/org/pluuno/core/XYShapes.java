@@ -15,27 +15,31 @@ public class XYShapes {
 	}
 	
 	public static long of(int shapeId, int x, int y, int id) {
-		long l = 0;
-		l |= 0xFFFFL & shapeId;
-		l |= (0xFFL & x) << 16;
-		l |= (0xFFL & y) << 24;
-		l |= (0xFFFFFFFFL & id) << 32;
-		return l;
+		long xyshape = 0;
+		xyshape |= 0xFFFFL & shapeId;
+		xyshape |= (0xFFL & x) << 16;
+		xyshape |= (0xFFL & y) << 24;
+		xyshape |= (0xFFFFFFFFL & id) << 32;
+		return xyshape;
 	}
 	
-	public static short shapeId(long l) {
-		return (short) (0xFFFFL & l);
+	public static short shapeId(long xyshape) {
+		return (short) (0xFFFFL & xyshape);
 	}
 	
-	public static int x(long l) {
-		return (int) ((0xFF0000L & l) >>> 16);
+	public static Shape shape(long xyshape) {
+		return Shape.of(shapeId(xyshape));
 	}
 	
-	public static int y(long l) {
-		return (int) ((0xFF000000L & l) >>> 24);
+	public static int x(long xyshape) {
+		return (int) (byte) ((0xFF0000L & xyshape) >>> 16);
 	}
 	
-	public static int id(long l) {
-		return (int) ((0xFFFFFFFF00000000L & l) >>> 32);
+	public static int y(long xyshape) {
+		return (int) (byte) ((0xFF000000L & xyshape) >>> 24);
+	}
+	
+	public static int id(long xyshape) {
+		return (int) ((0xFFFFFFFF00000000L & xyshape) >>> 32);
 	}
 }

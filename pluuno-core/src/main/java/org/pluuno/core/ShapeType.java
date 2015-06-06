@@ -130,7 +130,7 @@ public class ShapeType {
 	public short getId() {
 		return id;
 	}
-	private int getDim() {
+	public int getDim() {
 		return dim;
 	}
 	public Shape getUp() {
