@@ -31,12 +31,13 @@ public class EnginePanel extends JPanel {
 		
 		@Override
 		protected void paintComponent(Graphics g) {
-			Color c = Blocks.color(engine.getBlock(x, y));
+			long block = engine.getBlock(x, y);
+			Color c = engine.getConfig().getShapeColors().getColor(Blocks.flags(block), Blocks.shapeId(block), engine);
 			g.setColor(c);
-			g.fillRect(0, 0, getWidth(), getHeight());
+			g.fillRect(0, 0, getWidth()-1, getHeight()-1);
 			if(y == 0 && bufferHeight > 0) {
 				g.setColor(Color.WHITE);
-				g.drawLine(0, 0, getWidth(), 0);
+				g.drawLine(0, 0, getWidth()-1, 0);
 			}
 		}
 	}

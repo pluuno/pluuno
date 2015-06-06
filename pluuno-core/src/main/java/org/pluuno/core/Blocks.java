@@ -11,10 +11,11 @@ import java.awt.Color;
  *
  */
 public class Blocks {
-	public static int FLAG_SOLID =   0b00000001;
-	public static int FLAG_GARBAGE = 0b00000010;
-	public static int FLAG_ACTIVE =  0b00000100;
-	public static int FLAG_GHOST =   0b00001000;
+	public static final int FLAG_SOLID =   0b00000001;
+	public static final int FLAG_GARBAGE = 0b00000010;
+	public static final int FLAG_ACTIVE =  0b00000100;
+	public static final int FLAG_GHOST =   0b00001000;
+	public static final int FLAG_WALL =    0b00010000;
 	
 	public static long of(int flags, int red, int green, int blue, int alpha, short shapeId) {
 		long b = 0;
@@ -29,6 +30,10 @@ public class Blocks {
 	
 	public static long of(int flags, Color c, short shapeId) {
 		return of(flags, c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha(), shapeId);
+	}
+	
+	public static long of(int flags, short shapeId) {
+		return of(flags, 0, 0, 0, 0, shapeId);
 	}
 	
 	public static int flags(long block) {

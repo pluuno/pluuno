@@ -120,8 +120,8 @@ public class ShapeType {
 	
 	public ShapeType(int id, int dim, Color defaultColor, long mask) {
 		this.id = (short) id;
-		this.defaultColor = defaultColor;
 		this.dim = dim;
+		this.defaultColor = defaultColor;
 		shapes = new Shape[4];
 		shapes[0] = new Shape(this, Orientation.UP, mask);
 		mask = rotate8x8Right(mask) >>> (8 - dim);

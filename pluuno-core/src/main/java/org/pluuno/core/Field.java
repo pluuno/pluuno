@@ -1,5 +1,6 @@
 package org.pluuno.core;
 
+import java.awt.Color;
 import java.util.Arrays;
 
 import com.esotericsoftware.kryo.Kryo;
@@ -62,7 +63,7 @@ public class Field {
 		this.bufferHeight = bufferHeight;
 		
 		mask = new long[fieldHeight + bufferHeight + 2 * PAD];
-		blocks = new long[width * (fieldHeight + bufferHeight)];
+		blocks = new long[mask.length * 64];
 		wall = PAD_MASK | (PAD_MASK << (PAD + width));
 		top = PAD + bufferHeight;
 		
@@ -81,6 +82,17 @@ public class Field {
 			mask[mask.length - 1 - i] = -1L;
 		}
 		Arrays.fill(blocks, 0L);
+		long wallBlock = Blocks.of(Blocks.FLAG_SOLID | Blocks.FLAG_WALL, Color.BLACK, (short) 0);
+		long[] tbp = new long[width * PAD];
+		Arrays.fill(tbp, wallBlock);
+		System.arraycopy(tbp, 0, blocks, 0, tbp.length);
+		System.arraycopy(tbp, 0, blocks, blocks.length - tbp.length, tbp.length);
+		for(int y = -bufferHeight; y < fieldHeight; y++) {
+			for(int x = 0; x < PAD; x++) {
+				blocks[64 * (top + y) + x] = wallBlock;
+				blocks[64 * (top + y) + 63 - x] = wallBlock;
+			}
+		}
 	}
 	
 	public boolean intersects(long xyshape) {
@@ -89,7 +101,11 @@ public class Field {
 		Shape shape = XYShapes.shape(xyshape);
 		long[] smask = shape.getSplitMask();
 		for(int i = 0; i < smask.length; i++) {
-			long fmask = mask[top + y + i] & ~wall;
+			long fmask;
+			if(y + i < fieldHeight && y + i >= -bufferHeight)
+				fmask = mask[top + y + i] & ~wall;
+			else
+				fmask = -1L;
 			if((fmask & (smask[i] << (PAD + x))) != 0)
 				return true;
 		}
@@ -107,13 +123,13 @@ public class Field {
 		for(int by = 0; by < Shape.MAX_DIM; by++) {
 			for(int bx = 0; bx < Shape.MAX_DIM; bx++) {
 				if((shape.getMask() & (1L << (by * Shape.MAX_DIM + bx))) != 0)
-					blocks[width * (y + bufferHeight) + width * by + x + bx] = block;
+					blocks[64 * (top + y + by) + PAD + x + bx] = block;
 			}
 		}
 	}
 	
 	public long getBlock(int x, int y) {
-		return blocks[width * (y + bufferHeight) + x];
+		return blocks[64 * (top + y) + PAD + x];
 	}
 	
 	public int getWidth() {

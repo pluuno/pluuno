@@ -8,4 +8,5 @@ public interface EngineConfiguration {
 
 	public StartingPositions getStartingPositions();
 
+	public Ghosting getGhosting();
 }

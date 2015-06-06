@@ -10,35 +10,49 @@ public class DefaultEngineConfiguration implements EngineConfiguration {
 	private ShapeColors shapeColors;
 	private StartingPositions startingPositions;
 	private RotationSystem rotationSystem;
+	private Ghosting ghosting;
 	
 	private DefaultEngineConfiguration() {
 		PropertiesCustomization pc = new PropertiesCustomization(getClass().getResource("default.properties"));
 		shapeColors = pc;
 		startingPositions = pc;
 		rotationSystem = pc;
+		ghosting = pc;
 	}
 	
 	@Override
 	public ShapeColors getShapeColors() {
 		return shapeColors;
 	}
-	public void setShapeColors(ShapeColors shapeColors) {
-		this.shapeColors = shapeColors;
-	}
 
 	@Override
 	public RotationSystem getRotationSystem() {
 		return rotationSystem;
-	}
-	public void setRotationSystem(RotationSystem rotationSystem) {
-		this.rotationSystem = rotationSystem;
 	}
 
 	@Override
 	public StartingPositions getStartingPositions() {
 		return startingPositions;
 	}
+
+	@Override
+	public Ghosting getGhosting() {
+		return ghosting;
+	}
+
+	public void setShapeColors(ShapeColors shapeColors) {
+		this.shapeColors = shapeColors;
+	}
+
 	public void setStartingPositions(StartingPositions startingPositions) {
 		this.startingPositions = startingPositions;
+	}
+
+	public void setRotationSystem(RotationSystem rotationSystem) {
+		this.rotationSystem = rotationSystem;
+	}
+
+	public void setGhosting(Ghosting ghosting) {
+		this.ghosting = ghosting;
 	}
 }

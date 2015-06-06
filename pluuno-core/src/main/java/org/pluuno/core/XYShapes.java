@@ -10,9 +10,9 @@ package org.pluuno.core;
  */
 public class XYShapes {
 	public static final long SHAPE_ID_MASK = 0xFFFFL;
-	public static final long X_MASK = 0x0000FFL;
-	public static final long Y_MASK = 0x000000FFL;
-	public static final long XYSHAPE_ID_MASK = 0x00000000FFFFFFFFL;
+	public static final long X_MASK = 0xFF0000L;
+	public static final long Y_MASK = 0xFF000000L;
+	public static final long XYSHAPE_ID_MASK = 0xFFFFFFFF00000000L;
 	
 	public static long of(Shape shape, int x, int y, int id) {
 		return of(shape.getId(), x, y, id);
@@ -51,8 +51,8 @@ public class XYShapes {
 		int x = deltaX + x(xyshape);
 		int y = deltaY + y(xyshape);
 		xyshape &= ~(X_MASK | Y_MASK);
-		xyshape |= (0xFF & x) << 16;
-		xyshape |= (0xFF & y) << 24;
+		xyshape |= ((0xFFL & x) << 16);
+		xyshape |= ((0xFFL & y) << 24);
 		return xyshape;
 	}
 	

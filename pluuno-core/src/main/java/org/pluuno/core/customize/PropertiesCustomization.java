@@ -7,6 +7,7 @@ import java.net.URL;
 import java.util.Objects;
 import java.util.Properties;
 
+import org.pluuno.core.Blocks;
 import org.pluuno.core.Orientation;
 import org.pluuno.core.Shape;
 import org.pluuno.core.ShapeType;
@@ -17,7 +18,8 @@ public class PropertiesCustomization
 implements 
 ShapeColors,
 StartingPositions,
-RotationSystem
+RotationSystem,
+Ghosting
 {
 	public static final String STARTING_X_OFFSET = ".starting.x-offset";
 	public static final String STARTING_Y_OFFSET = ".starting.y-offset";
@@ -29,6 +31,10 @@ RotationSystem
 	public static final String CLOCKWISE_Y_KICKS = ".rotate.clockwise.y-kicks";
 	public static final String COUNTERCLOCKWISE_X_KICKS = ".rotate.counterclockwise.x-kicks";
 	public static final String COUNTERCLOCKWISE_Y_KICKS = ".rotate.counterclockwise.y-kicks";
+	public static final String GHOSTING_ENABLED = ".ghosting.enabled";
+	public static final String BACKGROUND_COLOR = "color.background";
+	public static final String WALL_COLOR = "color.wall";
+	public static final String GARBAGE_COLOR = "color.garbage";
 	
 	private static final Properties load(URL url) {
 		try {
@@ -97,6 +103,20 @@ RotationSystem
 	}
 
 	@Override
+	public Color getColor(int blockFlags, int shapeId, Engine engine) {
+		if((blockFlags & Blocks.FLAG_GHOST) != 0)
+			return getGhostColor(Shape.of(shapeId), engine);
+		if((blockFlags & Blocks.FLAG_ACTIVE) != 0)
+			return getActiveColor(Shape.of(shapeId), engine);
+		if((blockFlags & Blocks.FLAG_GARBAGE) != 0)
+			return getGarbageColor();
+		if((blockFlags & Blocks.FLAG_WALL) != 0)
+			return getWallColor();
+		if((blockFlags & Blocks.FLAG_SOLID) != 0)
+			return getInactiveColor(Shape.of(shapeId), engine);
+		return getBackgroundColor();
+	}
+
 	public Color getInactiveColor(Shape shape, Engine engine) {
 		String[] rgba = pv(shape, INACTIVE_COLOR).split(",");
 		return new Color(
@@ -106,7 +126,6 @@ RotationSystem
 				Integer.parseInt(rgba[3].trim()));
 	}
 
-	@Override
 	public Color getActiveColor(Shape shape, Engine engine) {
 		String[] rgba = pv(shape, ACTIVE_COLOR).split(",");
 		return new Color(
@@ -116,9 +135,35 @@ RotationSystem
 				Integer.parseInt(rgba[3].trim()));
 	}
 
-	@Override
 	public Color getGhostColor(Shape shape, Engine engine) {
 		String[] rgba = pv(shape, GHOST_COLOR).split(",");
+		return new Color(
+				Integer.parseInt(rgba[0].trim()),
+				Integer.parseInt(rgba[1].trim()),
+				Integer.parseInt(rgba[2].trim()),
+				Integer.parseInt(rgba[3].trim()));
+	}
+	
+	public Color getBackgroundColor() {
+		String[] rgba = props.getProperty(BACKGROUND_COLOR).split(",");
+		return new Color(
+				Integer.parseInt(rgba[0].trim()),
+				Integer.parseInt(rgba[1].trim()),
+				Integer.parseInt(rgba[2].trim()),
+				Integer.parseInt(rgba[3].trim()));
+	}
+	
+	public Color getWallColor() {
+		String[] rgba = props.getProperty(WALL_COLOR).split(",");
+		return new Color(
+				Integer.parseInt(rgba[0].trim()),
+				Integer.parseInt(rgba[1].trim()),
+				Integer.parseInt(rgba[2].trim()),
+				Integer.parseInt(rgba[3].trim()));
+	}
+	
+	public Color getGarbageColor() {
+		String[] rgba = props.getProperty(GARBAGE_COLOR).split(",");
 		return new Color(
 				Integer.parseInt(rgba[0].trim()),
 				Integer.parseInt(rgba[1].trim()),
@@ -172,6 +217,22 @@ RotationSystem
 			long t = XYShapes.shifted(rotated, xo[i], yo[i]);
 			if(!engine.getField().intersects(t))
 				return t;
+		}
+		return xyshape;
+	}
+
+	@Override
+	public Long computeGhost(Long xyshape, Engine engine) {
+		if(xyshape == null)
+			return null;
+		ShapeType type = XYShapes.shape(xyshape).getType();
+		String v = pv(type, GHOSTING_ENABLED);
+		if(!Boolean.parseBoolean(v))
+			return null;
+		long nxy = XYShapes.shifted(xyshape, 0, 1);
+		while(!engine.getField().intersects(nxy)) {
+			xyshape = nxy;
+			nxy = XYShapes.shifted(nxy, 0, 1);
 		}
 		return xyshape;
 	}

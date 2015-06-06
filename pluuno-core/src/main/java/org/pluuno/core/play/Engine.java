@@ -18,6 +18,7 @@ public class Engine {
 		private long moveCount;
 		private long holdCount;
 		private long gravityFrameOffset;
+		private int level;
 		
 		private Counts() {}
 		
@@ -36,15 +37,39 @@ public class Engine {
 		public long getGravityFrameOffset() {
 			return gravityFrameOffset;
 		}
+		public int getLevel() {
+			return level;
+		}
+		public void setCurrentXYShapeID(int currentXYShapeID) {
+			this.currentXYShapeID = currentXYShapeID;
+		}
+		public void setFrameCount(long frameCount) {
+			this.frameCount = frameCount;
+		}
+		public void setMoveCount(long moveCount) {
+			this.moveCount = moveCount;
+		}
+		public void setHoldCount(long holdCount) {
+			this.holdCount = holdCount;
+		}
+		public void setGravityFrameOffset(long gravityFrameOffset) {
+			this.gravityFrameOffset = gravityFrameOffset;
+		}
+		public void setLevel(int level) {
+			this.level = level;
+		}
 	}
 	
 	private Field field;
 	private Long xyshape;
 	private long block;
+	private Long ghost;
+	private long ghostBlock;
 	private Long held;
 	
 	private EngineConfiguration config = DefaultEngineConfiguration.get();
 	private Counts counts = new Counts();
+	private EngineEventHelper events = new EngineEventHelper();
 	
 	private boolean over;
 	
@@ -52,9 +77,18 @@ public class Engine {
 		this.field = Objects.requireNonNull(field);
 	}
 	
+	public void addEngineListener(EngineListener l) {
+		events.addEngineListener(l);
+	}
+	
+	public void removeEngineListener(EngineListener l) {
+		events.removeEngineListener(l);
+	}
+	
 	public void perform(Command command) {
-		if(xyshape == null)
+		if(xyshape == null || over)
 			return;
+		long oldMoveCount = counts.moveCount;
 		switch(command) {
 		case NO_ACTION: break;
 		case SHIFT_UP: 
@@ -182,26 +216,61 @@ public class Engine {
 			counts.moveCount++;
 			break;
 		}
+		if(oldMoveCount != counts.moveCount) {
+			if(xyshape != null) {
+				Shape shape = XYShapes.shape(xyshape);
+				ghost = config.getGhosting().computeGhost(xyshape, this);
+				ghostBlock = Blocks.of(
+						Blocks.FLAG_ACTIVE | Blocks.FLAG_GHOST, 
+						config.getShapeColors().getColor(Blocks.FLAG_ACTIVE | Blocks.FLAG_GHOST, shape.getId(), this), 
+						shape.getId());
+			} else {
+				ghost = null;
+				ghostBlock = 0;
+			}
+			events.fireCommandPerformed(command);
+		}
+		else if(command != Command.NO_ACTION)
+			events.fireCommandNotPerformed(command);
 	}
 	
 	public void spawn(ShapeType type) {
+		if(over)
+			return;
+		ghost = null;
+		ghostBlock = 0;
+		
 		counts.gravityFrameOffset = counts.frameCount;
 		int x = config.getStartingPositions().startingX(type, this);
 		int y = config.getStartingPositions().startingY(type, this);
 		Orientation orientation = config.getStartingPositions().startingOrientation(type, this);
 		Shape shape = type.getShape(orientation);
 		setXYShape(XYShapes.of(shape, x, y, ++counts.currentXYShapeID));
+		events.fireShapeSpawned(xyshape);
+		if(field.intersects(xyshape)) {
+			over = true;
+			events.fireGameOver();
+			return;
+		}
+		
+		ghost = config.getGhosting().computeGhost(xyshape, this);
+		ghostBlock = Blocks.of(
+				Blocks.FLAG_ACTIVE | Blocks.FLAG_GHOST, 
+				config.getShapeColors().getColor(Blocks.FLAG_ACTIVE | Blocks.FLAG_GHOST, shape.getId(), this), 
+				shape.getId());
 	}
 
 	public void lock() {
-		if(xyshape == null)
+		if(xyshape == null || over)
 			return;
+		long was = xyshape;
 		Shape shape = XYShapes.shape(xyshape);
 		field.blit(xyshape, Blocks.of(
 				Blocks.FLAG_SOLID,
-				config.getShapeColors().getInactiveColor(shape, this),
+				config.getShapeColors().getColor(Blocks.FLAG_SOLID, shape.getId(), this),
 				shape.getId()));
 		setXYShape(null);
+		events.fireShapeLocked(was);
 	}
 	
 	public void reset() {
@@ -209,6 +278,7 @@ public class Engine {
 		setXYShape(null);
 		counts = new Counts();
 		over = false;
+		events.fireGameReset();
 	}
 	
 	public long getBlock(int x, int y) {
@@ -219,6 +289,15 @@ public class Engine {
 				long m = XYShapes.shape(xyshape).getSplitMask()[y - sy];
 				if((m & (1L << (x - sx))) != 0)
 					return block;
+			}
+		}
+		if(ghost != null) {
+			int sx = XYShapes.x(ghost);
+			int sy = XYShapes.y(ghost);
+			if(x >= sx && x - sx < Shape.MAX_DIM && y >= sy && y - sy < Shape.MAX_DIM) {
+				long m = XYShapes.shape(ghost).getSplitMask()[y - sy];
+				if((m & (1L << (x - sx))) != 0)
+					return ghostBlock;
 			}
 		}
 		return field.getBlock(x, y);
@@ -238,10 +317,22 @@ public class Engine {
 			Shape shape = XYShapes.shape(xyshape);
 			block = Blocks.of(
 					Blocks.FLAG_ACTIVE, 
-					config.getShapeColors().getActiveColor(shape, this), 
+					config.getShapeColors().getColor(Blocks.FLAG_ACTIVE, shape.getId(), this), 
 					shape.getId());
-		} else
+			ghost = config.getGhosting().computeGhost(xyshape, this);
+			ghostBlock = Blocks.of(
+					Blocks.FLAG_ACTIVE | Blocks.FLAG_GHOST, 
+					config.getShapeColors().getColor(Blocks.FLAG_ACTIVE | Blocks.FLAG_GHOST, shape.getId(), this), 
+					shape.getId());
+		} else {
+			ghost = null;
 			block = 0;
+			ghostBlock = 0;
+		}
+	}
+	
+	public Long getGhost() {
+		return ghost;
 	}
 	
 	public Counts getCounts() {

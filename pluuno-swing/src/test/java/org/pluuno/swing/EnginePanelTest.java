@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.Arrays;
 
 import javax.swing.JFrame;
 
@@ -16,22 +17,15 @@ public class EnginePanelTest {
 	public static void main(String[] args) {
 		Field field = new Field();
 		Engine engine = new Engine(field);
-		engine.setXYShape(XYShapes.of(ShapeType.S.getUp(), 0, 0, 0));
+		engine.setXYShape(XYShapes.of(ShapeType.O.getRight(), 0, 0, 0xdeadbeef));
 		
 		EnginePanel fp = new EnginePanel(engine, 4);
 		JFrame frame = new JFrame(EnginePanelTest.class.getName());
-		frame.setUndecorated(true);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setLayout(new BorderLayout());
 		frame.add(fp, BorderLayout.CENTER);
 		frame.pack();
-		frame.setSize(100, 240);
-		frame.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				System.exit(0);
-			}
-		});
+		frame.setSize(10*40, 24*40);
 		frame.setVisible(true);
-		frame.setBackground(new Color(0, 0, 0, 0));
 	}
 }

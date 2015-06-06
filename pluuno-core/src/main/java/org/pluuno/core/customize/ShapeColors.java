@@ -6,7 +6,5 @@ import org.pluuno.core.Shape;
 import org.pluuno.core.play.Engine;
 
 public interface ShapeColors {
-	public Color getInactiveColor(Shape shape, Engine engine);
-	public Color getActiveColor(Shape shape, Engine engine);
-	public Color getGhostColor(Shape shape, Engine engine);
+	public Color getColor(int blockFlags, int shapeId, Engine engine);
 }
